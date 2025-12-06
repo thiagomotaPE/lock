@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: lock_db-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lock_db
+    volumes:
+      - lock_db_pg_data:/bitnami/postgresql
+
+volumes:
+  lock_db_pg_data:

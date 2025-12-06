@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
 
-@Table(name="user_tale")
-@Entity(name="user_table")
+@Table(name="tb_user")
+@Entity(name="tb_user")
 @Getter
 @Setter
 @AllArgsConstructor
