@@ -1,12 +1,15 @@
 package com.api.lock.user.entity;
 
-import com.api.lock.user.Dto.RequestUserDto;
+import com.api.lock.user.Dto.CreateUserDto;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-@Table(name="user_tale")
-@Entity(name="user_table")
+@Table(name="tb_user")
+@Entity(name="tb_user")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,9 +18,19 @@ import lombok.*;
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String name;
 
-    public User(@Valid RequestUserDto userDto) {
-        this.name = userDto.name();
+    @NotBlank @NotNull
+    private String username;
+
+    @Email @NotBlank @NotNull @Column(unique = true)
+    private String email;
+
+    @NotBlank @NotNull
+    private String password;
+
+    public User(@Valid CreateUserDto createUserDto) {
+        this.username = createUserDto.username();
+        this.email = createUserDto.email();
+        this.password = createUserDto.password();
     }
 }
