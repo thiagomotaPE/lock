@@ -1,10 +1,16 @@
 package com.api.lock.user.service;
 
+import com.api.lock.security.TokenService;
 import com.api.lock.user.Dto.CreateUserDto;
+import com.api.lock.user.Dto.LoginResponseDto;
+import com.api.lock.user.Dto.LoginUserDto;
 import com.api.lock.user.entity.User;
 import com.api.lock.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +19,10 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    TokenService tokenService;
 
     //Busca todos os usuarios
     public ResponseEntity<List<User>> getAllUsers() {
@@ -25,15 +35,25 @@ public class UserService {
     }
 
     //Cria um novo usuario
-    public ResponseEntity<List<User>> RegisterNewUser(CreateUserDto createUserDto) {
+    public ResponseEntity<List<User>> registerNewUser(CreateUserDto createUserDto) {
         verifyPassword(createUserDto.password());
         try {
-            User newUser = new User(createUserDto);
+            String encryptedPassword = new BCryptPasswordEncoder().encode(createUserDto.password());
+            User newUser = new User(createUserDto.username(), createUserDto.email(), encryptedPassword);
             userRepository.save(newUser);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //Realiza o login(autenticacao) do usuario na aplicação
+    public ResponseEntity loginUser(LoginUserDto loginUserDto) {
+        var emailPassword = new UsernamePasswordAuthenticationToken(loginUserDto.email(), loginUserDto.password());
+        var auth = authenticationManager.authenticate(emailPassword);
+        var token = tokenService.generateToken((User) auth.getPrincipal());
+
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
     //Verifica se a senha nova tem o padrão necessario
