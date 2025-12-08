@@ -16,9 +16,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@Profile("prod")
+@Profile("dev")
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfigDev {
     @Autowired
     SecurityFilter securityFilter;
 
@@ -29,10 +29,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/user/getAllUsers").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/user/registerNewUser").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)    ;
 
