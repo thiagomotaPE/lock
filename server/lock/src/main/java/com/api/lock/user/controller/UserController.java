@@ -1,6 +1,7 @@
 package com.api.lock.user.controller;
 
 import com.api.lock.user.Dto.CreateUserDto;
+import com.api.lock.user.Dto.LoginUserDto;
 import com.api.lock.user.entity.User;
 import com.api.lock.user.service.UserService;
 import jakarta.validation.Valid;
@@ -22,7 +23,12 @@ public class UserController {
     }
 
     @PostMapping("/registerNewUser")
-    public ResponseEntity<List<User>> RegisterUser(@RequestBody @Valid CreateUserDto userDto) {
-        return userService.RegisterNewUser(userDto);
+    public ResponseEntity<List<User>> registerUser(@RequestBody @Valid CreateUserDto createUserDto) {
+        return userService.registerNewUser(createUserDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity loginUser(@RequestBody @Valid LoginUserDto loginUserDto) {
+        return userService.loginUser(loginUserDto);
     }
 }
