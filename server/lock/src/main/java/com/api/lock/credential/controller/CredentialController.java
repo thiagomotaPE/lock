@@ -19,13 +19,14 @@ public class CredentialController {
     @Autowired
     private CredentialService credentialService;
 
-    @GetMapping("/getAllCredentials")
-    public ResponseEntity<List<Credential>> getCredentials() {
-        return credentialService.getAllCredentialsById();
+    @GetMapping("/getAllCredentials/{userId}")
+    public ResponseEntity<List<Credential>> getCredentials(@PathVariable String userId) {
+        return credentialService.getAllCredentialsByUserId(userId);
     }
 
     @PostMapping("/registerNewCredential")
-    public ResponseEntity<List<Credential>> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
+    @Transactional
+    public ResponseEntity<Credential> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
         return credentialService.registerNewCredential(createCredentialDto);
     }
 

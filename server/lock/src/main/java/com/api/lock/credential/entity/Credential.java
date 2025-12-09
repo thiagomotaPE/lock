@@ -1,6 +1,8 @@
 package com.api.lock.credential.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Table(name="tb_credential")
-@Entity(name="tb_credential")
+@Entity(name="credential")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,8 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class Credential {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @NotBlank @NotNull
@@ -28,6 +29,25 @@ public class Credential {
     @NotBlank @NotNull
     private String userId;
 
-    @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CredentialField> fields = new ArrayList<>();
+    @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<CredentialField> fields;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public Credential(@Valid String credentialName, @Valid String userId, @Valid LocalDateTime createdAt, @Valid LocalDateTime updatedAt) {
+        this.credentialName = credentialName;
+        this.userId = userId;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public void addField(CredentialField f) {
+        if (this.fields == null) {
+            this.fields = new ArrayList<>();
+        }
+        f.setCredential(this);
+        this.fields.add(f);
+    }
 }
