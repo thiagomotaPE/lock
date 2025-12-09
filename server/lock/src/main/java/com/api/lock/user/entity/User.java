@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @NotNull
     private UserRole role;
 
-    public User(@Valid String username, String email, String password) {
+    public User(@Valid String username, @Valid String email, @Valid String password) {
         this.username = username;
         this.email = email;
         this.password = password;
