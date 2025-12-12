@@ -36,13 +36,6 @@ public class Credential {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public Credential(@Valid String credentialName, @Valid String userId, @Valid LocalDateTime createdAt, @Valid LocalDateTime updatedAt) {
-        this.credentialName = credentialName;
-        this.userId = userId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
     public void addField(CredentialField f) {
         if (this.fields == null) {
             this.fields = new ArrayList<>();

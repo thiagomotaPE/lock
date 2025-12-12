@@ -38,8 +38,7 @@ public class EncryptionService {
             byte[] ct = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
             // store iv + ciphertext in base64 separated by :
             String combined = Base64.getEncoder().encodeToString(iv) + ":" + Base64.getEncoder().encodeToString(ct);
-            //return combined;
-            return plaintext;
+            return combined;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -56,8 +55,7 @@ public class EncryptionService {
             GCMParameterSpec spec = new GCMParameterSpec(128, iv);
             cipher.init(Cipher.DECRYPT_MODE, keySpec, spec);
             byte[] plain = cipher.doFinal(ct);
-            //return new String(plain, StandardCharsets.UTF_8);
-            return combined;
+            return new String(plain, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

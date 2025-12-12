@@ -1,6 +1,7 @@
 package com.api.lock.credential.controller;
 
 import com.api.lock.credential.Dto.CreateCredentialDto;
+import com.api.lock.credential.Dto.CredentialResponseDto;
 import com.api.lock.credential.Dto.UpdateCredentialDto;
 import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.service.CredentialService;
@@ -20,7 +21,7 @@ public class CredentialController {
     private CredentialService credentialService;
 
     @GetMapping("/getAllCredentials/{userId}")
-    public ResponseEntity<List<Credential>> getCredentials(@PathVariable String userId) {
+    public ResponseEntity<List<CredentialResponseDto>> getCredentials(@PathVariable String userId) {
         return credentialService.getAllCredentialsByUserId(userId);
     }
 
@@ -32,7 +33,7 @@ public class CredentialController {
 
     @PutMapping("/editCredential")
     @Transactional
-    public ResponseEntity<List<Credential>> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
+    public ResponseEntity<Credential> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
         return credentialService.editCredential(updateCredentialDto);
     }
 
