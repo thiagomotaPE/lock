@@ -1,4 +1,4 @@
-package com.api.lock.credential.Dto;
+package com.api.lock.credential.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
