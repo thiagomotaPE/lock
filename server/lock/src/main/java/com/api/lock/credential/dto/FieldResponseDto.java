@@ -1,4 +1,4 @@
-package com.api.lock.credential.Dto;
+package com.api.lock.credential.dto;
 
 public record FieldResponseDto(
         String key,

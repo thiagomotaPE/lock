@@ -1,8 +1,8 @@
 package com.api.lock.credential.controller;
 
-import com.api.lock.credential.Dto.CreateCredentialDto;
-import com.api.lock.credential.Dto.CredentialResponseDto;
-import com.api.lock.credential.Dto.UpdateCredentialDto;
+import com.api.lock.credential.dto.CreateCredentialDto;
+import com.api.lock.credential.dto.CredentialResponseDto;
+import com.api.lock.credential.dto.UpdateCredentialDto;
 import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.service.CredentialService;
 import jakarta.transaction.Transactional;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/credential")
 public class CredentialController {
     @Autowired
@@ -23,6 +23,11 @@ public class CredentialController {
     @GetMapping("/getAllCredentials/{userId}")
     public ResponseEntity<List<CredentialResponseDto>> getCredentials(@PathVariable String userId) {
         return credentialService.getAllCredentialsByUserId(userId);
+    }
+
+    @GetMapping("/getByUserAndCategory/{userId}/{categoryId}")
+    public ResponseEntity<List<CredentialResponseDto>> getByUserAndCategory(@PathVariable String userId, @PathVariable String categoryId) {
+        return credentialService.getCredentialsByUserAndCategory(userId, categoryId);
     }
 
     @PostMapping("/registerNewCredential")

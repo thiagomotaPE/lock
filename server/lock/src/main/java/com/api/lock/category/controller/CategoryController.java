@@ -1,5 +1,7 @@
 package com.api.lock.category.controller;
 
+import com.api.lock.category.dto.CreateCategoryDto;
+import com.api.lock.category.dto.UpdateCategoryDto;
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.service.CategoryService;
 import jakarta.transaction.Transactional;
@@ -10,8 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping("/category")
 public class CategoryController {
     @Autowired
@@ -23,18 +26,17 @@ public class CategoryController {
     }
 
     @PostMapping("/registerNewCategory")
-    public ResponseEntity<List<Category>> registerCategory(@RequestBody @Valid Category dto) {
-        return categoryService.registerNewCategory(dto);
+    public ResponseEntity<List<Category>> registerCategory(@RequestBody @Valid CreateCategoryDto createCategoryDto) {
+        return categoryService.registerNewCategory(createCategoryDto);
     }
 
-    @PutMapping("/editCategory")
-    @Transactional
-    public ResponseEntity<List<Category>> editCategory() {
-        return categoryService.editCategory();
+    @PutMapping("/editCategory/{categoryId}")
+    public ResponseEntity<Category> editCategory(@PathVariable String categoryId, @RequestBody UpdateCategoryDto updateCategoryDto) {
+        return categoryService.editCategory(categoryId, updateCategoryDto);
     }
 
     @DeleteMapping("/deleteCategory/{categoryId}")
-    public ResponseEntity<Category> deleteCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<Category> deleteCategory(@PathVariable String categoryId) {
         return categoryService.deleteCategory(categoryId);
     }
 }

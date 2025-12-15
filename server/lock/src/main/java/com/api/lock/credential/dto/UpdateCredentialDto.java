@@ -1,4 +1,4 @@
-package com.api.lock.credential.Dto;
+package com.api.lock.credential.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -7,6 +7,7 @@ import java.util.List;
 public record UpdateCredentialDto(
         @NotBlank String id,
         @NotBlank String credentialName,
+        String credentialCategoryId,
         List<FieldDto> fields
 ) {
     public static class FieldDto {

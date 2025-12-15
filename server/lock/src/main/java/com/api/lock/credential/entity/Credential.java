@@ -1,5 +1,6 @@
 package com.api.lock.credential.entity;
 
+import com.api.lock.category.entity.Category;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -32,6 +33,10 @@ public class Credential {
     @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<CredentialField> fields;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "categoryId", nullable = false)
+    private Category category;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
