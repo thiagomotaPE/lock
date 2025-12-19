@@ -25,6 +25,11 @@ public class CredentialController {
         return credentialService.getAllCredentialsByUserId(userId);
     }
 
+    @GetMapping("/getCredentialDetails/{credentialId}")
+    public ResponseEntity<List<CredentialResponseDto>> getCredentialDetails(@PathVariable String credentialId) {
+        return credentialService.getCredentialDetailsById(credentialId);
+    }
+
     @GetMapping("/getByUserAndCategory/{userId}/{categoryId}")
     public ResponseEntity<List<CredentialResponseDto>> getByUserAndCategory(@PathVariable String userId, @PathVariable String categoryId) {
         return credentialService.getCredentialsByUserAndCategory(userId, categoryId);
