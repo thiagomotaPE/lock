@@ -73,15 +73,59 @@ public class CredentialService {
         }
     }
 
+    //Buscar apenas uma credencial
+    public ResponseEntity<List<CredentialResponseDto>> getCredentialDetailsById(String credentialId) {
+        try {
+            var credentialDetails = credentialRepository.findById(credentialId);
+
+            List<CredentialResponseDto> response = credentialDetails.stream().map(credential -> {
+
+                List<FieldResponseDto> fields = credential.getFields().stream().map(credentialField -> {
+                    String decryptedValue = "";
+                    try {
+                        decryptedValue = encryptionService.decrypt(credentialField.getEncryptedValue());
+                    } catch (Exception ignored) {}
+
+                    return new FieldResponseDto(
+                            credentialField.getKeyName(),
+                            credentialField.getLabel(),
+                            credentialField.getFieldType().name(),
+                            decryptedValue,
+                            credentialField.isSensitive()
+                    );
+                }).toList();
+
+                String categoryId = null;
+                String categoryName = null;
+
+                if (credential.getCategory() != null) {
+                    categoryId = credential.getCategory().getId();
+                    categoryName = credential.getCategory().getCategoryName();
+                }
+
+                return new CredentialResponseDto(
+                        credential.getId(),
+                        credential.getCredentialName(),
+                        credential.getUserId(),
+                        categoryId,
+                        categoryName,
+                        fields
+                );
+            }).toList();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     //Buscar credenciais por usuario e por categoria
     public ResponseEntity<List<CredentialResponseDto>> getCredentialsByUserAndCategory(String userId, String categoryId) {
 
         List<Credential> credentials = credentialRepository.findByUserIdAndCategory_Id(userId, categoryId);
-
-        List<CredentialResponseDto> response = credentials.stream()
-                .map(this::mapToDto)
-                .toList();
-
+        List<CredentialResponseDto> response = credentials.stream().map(this::mapToDto).toList();
         return ResponseEntity.ok(response);
     }
 
