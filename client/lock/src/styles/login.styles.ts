@@ -1,18 +1,17 @@
-import { light } from "@/src/theme/light";
-import { Platform, StyleSheet } from "react-native";
+import { typography } from '@/assets/fonts/typography ';
+import { Theme } from '@/theme/types';
+import { StyleSheet } from "react-native";
 
-
-export const style = StyleSheet.create({
+export const styles = (theme: Theme) => StyleSheet.create({
     container:{
-        backgroundColor: light.backgroundColor,
-        flex:1,
+        backgroundColor: theme.backgroundColor,
         alignItems:'center',
         justifyContent:'center',
     },
 
     content: {
-        width: '85%',
-        height: '85%'
+        width: '90%',
+        height: '100%'
     },
 
     headerSection: {
@@ -29,56 +28,55 @@ export const style = StyleSheet.create({
         fontSize: 22,
         width: '100%',
         textAlign: "center",
-        fontWeight: "regular",
+        fontFamily: typography.regular,
+        color: theme.textColor,
         marginBottom: 24,
-    },
-
-    header: {
-        width: '100%',
-        justifyContent: "flex-start"
     },
 
     form: {
         width: '100%',
+        marginTop: 15
     },
 
     label: {
         fontSize: 22,
-        fontWeight: "regular",
-        marginBottom: 20
+        fontFamily: typography.regular,
+        color: theme.textColor,
+        marginBottom: 14
     },
 
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: light.appColor,
+        borderColor: theme.primaryColor,
         borderRadius: 6,
         paddingHorizontal: 12,
         marginBottom: 12,
     },
 
     inputDisabled: {
-        borderColor: light.borderColor
+        borderColor: theme.borderColor
     },
 
     input: {
         flex: 1,
-        height: 48
+        height: 48,
+        fontFamily: typography.regular
     },
 
     primaryButton: {
-        backgroundColor: light.appColor,
+        backgroundColor: theme.primaryColor,
         height: 48,
         borderRadius: 6,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 8
+        marginTop: "5%"
     },
 
     primaryButtonText: {
-        color: light.textColor2,
-        fontWeight: 'bold',
+        color: theme.textColor2,
+        fontFamily: typography.bold,
         fontSize: 18
     },
 
@@ -89,51 +87,52 @@ export const style = StyleSheet.create({
     forgot: {
         textAlign: 'center',
         textDecorationLine: "underline",
-        color: light.appColor,
+        color: theme.primaryColor,
         marginVertical: 12,
-        fontSize: 12
+        fontSize: 12,
+        fontFamily: typography.regular
     },
 
     divider: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 16
     },
 
     line: {
         flex: 1,
         height: 1,
-        backgroundColor: light.appColor
+        backgroundColor: theme.primaryColor
     },
 
     or: {
-        fontWeight: "bold",
+        fontFamily: typography.semiBold,
         marginHorizontal: 8,
-        fontSize: 16,
-        marginBottom: 3,
+        fontSize: 16
     },
 
     googleButton: {
         flexDirection: 'row',
         height: 48,
         borderWidth: 1,
-        borderColor: light.appColor,
+        borderColor: theme.primaryColor,
         borderRadius: 6,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginTop: 8
     },
 
     googleText: {
-        color: light.appColor,
-        fontWeight: '500',
+        color: theme.primaryColor,
+        fontFamily: typography.semiBold,
         fontSize: 18
     },
 
     register: {
-        marginTop: 12,
+        marginTop: "55%",
         textAlign: 'center',
         textDecorationLine: "underline",
         fontSize: 12,
-        color: light.appColor
+        fontFamily: typography.regular,
+        color: theme.primaryColor
     }
 })

@@ -1,17 +1,20 @@
-import LogoShadow from '../assets/images/logo-shadow.png';
+import LogoShadow from '@/assets/images/logo-shadow.png';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { light } from '../theme/light';
+import { useTheme } from '@/theme/useTheme';
 import { useRouter } from 'expo-router';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { style } from '../styles/login.styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from '@/styles/login.styles';
 
 export default function Login() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const style = styles(theme);
 
   return (
-    <View style={style.container}>
+    <SafeAreaView style={[{ flex: 1 }, style.container]}>
       <View style={style.content}>
         <View style={style.headerSection}>
           <Image source={LogoShadow} style={style.logo} />
@@ -25,22 +28,22 @@ export default function Login() {
           <View style={style.inputContainer}>
             <TextInput
               placeholder="E-mail"
-              placeholderTextColor={light.appColor}
+              placeholderTextColor={theme.primaryColor}
               keyboardType="email-address"
               autoCapitalize="none"
               style={style.input}
             />
-            <MaterialIcons name="alternate-email" size={20} color={light.appColor} />
+            <MaterialIcons name="alternate-email" size={20} color={theme.primaryColor} />
           </View>
 
           <View style={[style.inputContainer, style.inputDisabled]}>
             <TextInput
               placeholder="Senha"
-              placeholderTextColor={light.contrastColor}
+              placeholderTextColor={theme.contrastColor}
               secureTextEntry
               style={style.input}
             />
-            <FontAwesome5 name="lock" size={20} color={light.contrastColor} />
+            <FontAwesome5 name="lock" size={20} color={theme.contrastColor} />
           </View>
 
           <TouchableOpacity style={style.primaryButton}>
@@ -60,7 +63,7 @@ export default function Login() {
           </View>
 
           <TouchableOpacity style={style.googleButton}>
-            <FontAwesome name="google" size={20} color={light.appColor} marginRight="8" />
+            <FontAwesome name="google" size={20} color={theme.primaryColor} marginRight="8" />
             <Text style={style.googleText}>Entrar com o Google</Text>
           </TouchableOpacity>
 
@@ -69,6 +72,6 @@ export default function Login() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }

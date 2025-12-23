@@ -34,13 +34,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#2F13DE"
         }
-      ],
-      "expo-font",
-      [
-        "expo-font",
-          {
-            "fonts": ["node_modules/@expo-google-fonts/poppins/900Black/poppins_900Black.ttf"]
-          }
       ]
     ],
     "experiments": {
