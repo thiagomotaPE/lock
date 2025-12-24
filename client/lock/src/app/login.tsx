@@ -1,12 +1,12 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
+import { styles } from '@/styles/login.styles';
+import { useTheme } from '@/theme/useTheme';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTheme } from '@/theme/useTheme';
 import { useRouter } from 'expo-router';
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { styles } from '@/styles/login.styles';
 
 export default function Login() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export default function Login() {
             <FontAwesome5 name="lock" size={20} color={theme.contrastColor} />
           </View>
 
-          <TouchableOpacity style={style.primaryButton}>
+          <TouchableOpacity style={style.primaryButton} onPress={() => router.navigate("/vault")}>
             <Text style={style.primaryButtonText}>Entrar</Text>
           </TouchableOpacity>
         </View>
