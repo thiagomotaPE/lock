@@ -65,21 +65,6 @@ export const styles = (theme: Theme) => StyleSheet.create({
         fontFamily: typography.regular
     },
 
-    primaryButton: {
-        backgroundColor: theme.primaryColor,
-        height: 48,
-        borderRadius: 6,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: "5%"
-    },
-
-    primaryButtonText: {
-        color: theme.textColor2,
-        fontFamily: typography.bold,
-        fontSize: 18
-    },
-
     actions: {
         width: '100%',
     },

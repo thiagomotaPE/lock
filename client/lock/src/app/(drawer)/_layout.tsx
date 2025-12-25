@@ -14,12 +14,7 @@ export default function DrawerLayout() {
         drawerActiveTintColor: theme.primaryColor,
       }}
     >
-      <Drawer.Screen
-        name="vault"
-        options={{
-          title: 'Vault',
-        }}
-      />
+      <Drawer.Screen name="vault" options={{title: 'Credenciais',}}/>
     </Drawer>
   );
 }
