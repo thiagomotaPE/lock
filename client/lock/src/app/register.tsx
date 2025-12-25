@@ -1,4 +1,5 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/register.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -65,9 +66,7 @@ export default function Register() {
             <FontAwesome5 name="lock" size={20} color={theme.contrastColor} />
           </View>
 
-          <TouchableOpacity style={style.primaryButton}>
-            <Text style={style.primaryButtonText}>Cadastrar</Text>
-          </TouchableOpacity>
+          <PrimaryButton title='Cadastrar' route='/login' />
         </View>
       
         <View style={style.actions}>

@@ -1,4 +1,5 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/login.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -46,9 +47,7 @@ export default function Login() {
             <FontAwesome5 name="lock" size={20} color={theme.contrastColor} />
           </View>
 
-          <TouchableOpacity style={style.primaryButton} onPress={() => router.navigate("/vault")}>
-            <Text style={style.primaryButtonText}>Entrar</Text>
-          </TouchableOpacity>
+          <PrimaryButton title='Entrar' route='/vault' />
         </View>
       
         <View style={style.actions}>

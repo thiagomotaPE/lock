@@ -93,4 +93,13 @@ export const styles = (theme: Theme) => StyleSheet.create({
     alignItems: 'center',
     elevation: 4,
   },
+  
+  listContainer: {
+    height: '85%'
+  },
+
+  list: {
+    marginTop: 16,
+    gap: 12
+  },
 });
