@@ -13,8 +13,8 @@ export function CredentialCard({ title }: CredentialCardProps) {
 
     return (
         <View style={style.card}>
-        <Text style={style.cardText}>{title}</Text>
-        <Ionicons name="lock-closed" size={18} color={theme.primaryColor}/>
+          <Text style={style.cardText}>{title}</Text>
+          <Ionicons name="lock-closed" size={18} color={theme.primaryColor}/>
         </View>
     );
 }

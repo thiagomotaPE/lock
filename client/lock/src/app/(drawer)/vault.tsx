@@ -10,19 +10,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DATA: any = [
   { id: '1', title: 'Instagram' },
-//   { id: '2', title: 'youtube' },
-//   { id: '3', title: 'Rico' },
-//   { id: '4', title: 'otorrinolaringologista' },
-//   { id: '5', title: 'otorrinolaringologista' },
-//   { id: '6', title: 'otorrinolaringologista' },
-//   { id: '7', title: 'otorrinolaringologista' },
-//   { id: '8', title: 'otorrinolaringologista' },
-//   { id: '9', title: 'otorrinolaringologista' },
-//   { id: '10', title: 'otorrinolaringologista' },
-//   { id: '11', title: 'otorrinolaringologista' },
-//   { id: '12', title: 'otorrinolaringologista' },
-//   { id: '13', title: 'otorrinolaringologista' },
-//   { id: '14', title: 'otorrinolaringologista' },
+  { id: '2', title: 'youtube' },
+  { id: '3', title: 'Rico' },
+  { id: '4', title: 'GitHub' },
+  { id: '5', title: 'PicPay' },
+  { id: '6', title: 'Notion' },
+  { id: '7', title: 'Nubank' },
+  { id: '8', title: 'Itau' },
+  { id: '9', title: 'Discord' },
+  { id: '10', title: 'Wellhub' },
+  { id: '11', title: 'Netflix' },
+  { id: '12', title: 'IFRS' },
+  { id: '13', title: 'Steam' },
+  { id: '14', title: 'Chat GPT' },
 ];
 
 export default function Vault() {

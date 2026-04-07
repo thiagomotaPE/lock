@@ -49,26 +49,6 @@ export const styles = (theme: Theme) => StyleSheet.create({
         marginBottom: 14
     },
 
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: theme.primaryColor,
-        borderRadius: 6,
-        paddingHorizontal: 12,
-        marginBottom: 12,
-    },
-
-    inputDisabled: {
-        borderColor: theme.borderColor
-    },
-
-    input: {
-        flex: 1,
-        height: 48,
-        fontFamily: typography.regular
-    },
-
     actions: {
         width: '100%'
     },
@@ -87,8 +67,10 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     or: {
         fontFamily: typography.semiBold,
+        fontSize: 16,
         marginHorizontal: 8,
-        fontSize: 16
+        color: theme.textColor
+
     },
 
     googleButton: {

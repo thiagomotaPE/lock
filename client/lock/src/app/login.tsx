@@ -1,12 +1,11 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryInput } from '@/components/primaryInput';
 import { styles } from '@/styles/login.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Login() {
@@ -26,26 +25,8 @@ export default function Login() {
 
         <View style={style.form}>
           <Text style={style.label}>Login</Text>
-          <View style={style.inputContainer}>
-            <TextInput
-              placeholder="E-mail"
-              placeholderTextColor={theme.primaryColor}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              style={style.input}
-            />
-            <MaterialIcons name="alternate-email" size={20} color={theme.primaryColor} />
-          </View>
-
-          <View style={[style.inputContainer, style.inputDisabled]}>
-            <TextInput
-              placeholder="Senha"
-              placeholderTextColor={theme.contrastColor}
-              secureTextEntry
-              style={style.input}
-            />
-            <FontAwesome5 name="lock" size={20} color={theme.contrastColor} />
-          </View>
+          <PrimaryInput label='E-mail' icon='alternate-email' keyboardType="email-address" autoCapitalize="none"/>
+          <PrimaryInput label='Senha' icon='lock' secureTextEntry autoCapitalize="none"/>
 
           <PrimaryButton title='Entrar' route='/vault' />
         </View>

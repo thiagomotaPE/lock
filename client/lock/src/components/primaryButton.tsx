@@ -2,7 +2,7 @@ import { Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme/useTheme';
 import { Href, useRouter } from 'expo-router';
 
-import { styles } from '@/styles/primaryButton';
+import { styles } from '@/styles/primaryButton.styles';
 
 type ButtonProps = {
   title: string;
