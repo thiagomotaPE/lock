@@ -4,12 +4,14 @@ import { StyleSheet } from 'react-native';
 
 export const styles = (theme: Theme) => StyleSheet.create({
   card: {
-    backgroundColor: theme.borderColor,
-    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    borderColor: theme.borderColor,
+    borderRadius: 14,
+    borderWidth: 1,
     padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center'
   },
 
   cardText: {
