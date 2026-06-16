@@ -1,7 +1,8 @@
-import { View, Text } from 'react-native';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { useTheme } from '@/theme/useTheme';
+import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/isEmpty.styles';
+import { useTheme } from '@/theme/useTheme';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { Text, View } from 'react-native';
 
 export function IsEmpty() {
     const { theme } = useTheme();
@@ -10,7 +11,7 @@ export function IsEmpty() {
     return (
         <View style={style.emptyContainer}>
             <View style={style.iconRow}>
-                <FontAwesome5 name="user-lock" size={150} color={theme.borderColor} />
+                <FontAwesome5 name="user-lock" size={measures.icon.huge} color={theme.borderColor} />
             </View>
 
             <Text style={style.emptyText}>

@@ -1,4 +1,5 @@
 import { typography } from '@/assets/fonts/typography ';
+import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from "react-native";
 
@@ -15,17 +16,17 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     headerSection: {
-    alignItems: 'center',
-    width: '100%',
+        alignItems: 'center',
+        width: '100%',
     },
 
     logo: {
-        width: 125,
-        height: 125,
+        width: measures.sizes.logoLarge,
+        height: measures.sizes.logoLarge,
     },
     
     slogan: {
-        fontSize: 22,
+        fontSize: measures.fontSize.f22,
         width: '100%',
         textAlign: "center",
         fontFamily: typography.regular,
@@ -39,30 +40,10 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     label: {
-        fontSize: 22,
+        fontSize: measures.fontSize.f22,
         fontFamily: typography.regular,
         color: theme.textColor,
         marginBottom: 14
-    },
-
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: theme.primaryColor,
-        borderRadius: 6,
-        paddingHorizontal: 12,
-        marginBottom: 12,
-    },
-
-    inputDisabled: {
-        borderColor: theme.borderColor
-    },
-
-    input: {
-        flex: 1,
-        height: 48,
-        fontFamily: typography.regular
     },
 
     actions: {
@@ -73,8 +54,8 @@ export const styles = (theme: Theme) => StyleSheet.create({
         textAlign: 'center',
         textDecorationLine: "underline",
         color: theme.primaryColor,
-        marginVertical: 12,
-        fontSize: 12,
+        marginVertical: measures.spacing.s12,
+        fontSize: measures.fontSize.f12,
         fontFamily: typography.regular
     },
 
@@ -85,38 +66,39 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     line: {
         flex: 1,
-        height: 1,
+        height: measures.border.normal,
         backgroundColor: theme.primaryColor
     },
 
     or: {
         fontFamily: typography.semiBold,
+        fontSize: 16,
         marginHorizontal: 8,
-        fontSize: 16
+        color: theme.textColor
     },
 
     googleButton: {
         flexDirection: 'row',
-        height: 48,
-        borderWidth: 1,
+        height: measures.sizes.buttonHeight,
+        borderWidth: measures.border.normal,
         borderColor: theme.primaryColor,
-        borderRadius: 6,
+        borderRadius: measures.radius.r14,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 8
+        marginTop: measures.spacing.s8
     },
 
     googleText: {
         color: theme.primaryColor,
         fontFamily: typography.semiBold,
-        fontSize: 18
+        fontSize: measures.fontSize.f18
     },
 
     register: {
         marginTop: "55%",
         textAlign: 'center',
         textDecorationLine: "underline",
-        fontSize: 12,
+        fontSize: measures.fontSize.f12,
         fontFamily: typography.regular,
         color: theme.primaryColor
     }

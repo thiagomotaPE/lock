@@ -1,20 +1,22 @@
-import { View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/theme/useTheme';
+import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/credentialCard.styles';
+import { useTheme } from '@/theme/useTheme';
+import { Ionicons } from '@expo/vector-icons';
+import { Text, TouchableOpacity } from 'react-native';
 
 type CredentialCardProps = {
   title: string;
+  onPress?: () => void;
 };
 
-export function CredentialCard({ title }: CredentialCardProps) {
-    const { theme } = useTheme();
-    const style = styles(theme);
+export function CredentialCard({ title, onPress }: CredentialCardProps) {
+  const { theme } = useTheme();
+  const style = styles(theme);
 
-    return (
-        <View style={style.card}>
-        <Text style={style.cardText}>{title}</Text>
-        <Ionicons name="lock-closed" size={18} color={theme.primaryColor}/>
-        </View>
-    );
+  return (
+    <TouchableOpacity style={style.card} onPress={onPress}>
+      <Text style={style.cardText}>{title}</Text>
+      <Ionicons name="lock-closed" size={measures.icon.xs} color={theme.primaryColor} />
+    </TouchableOpacity>
+  );
 }
