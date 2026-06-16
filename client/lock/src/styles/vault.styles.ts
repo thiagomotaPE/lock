@@ -1,4 +1,5 @@
 import { typography } from '@/assets/fonts/typography ';
+import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from 'react-native';
 
@@ -17,39 +18,42 @@ export const styles = (theme: Theme) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: measures.spacing.s14,
   },
 
-  searchContainer: {
+    searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.borderColor,
-    borderRadius: 6,
-    paddingHorizontal: 10,
+    backgroundColor: theme.backgroundColor2,
+    borderColor: theme.borderColor,
+    borderWidth: measures.border.normal,
+    borderRadius: measures.radius.r14,
+    paddingHorizontal: measures.spacing.s10,
   },
 
-  searchInput: {
+    searchInput: {
     flex: 1,
     height: "100%",
     fontFamily: typography.regular,
+    color: theme.textColor,
   },
 
-  filterRow: {
+    filterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16,
-    borderBottomWidth: 0.5,
+    marginTop: measures.spacing.s16,
+    borderBottomWidth: measures.border.thin,
     borderColor: theme.textColor,
-    paddingBottom: 8,
+    paddingBottom: measures.spacing.s8,
   },
 
-  filter: {
+    filter: {
     backgroundColor: theme.borderColor,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: measures.spacing.s16,
+    paddingVertical: measures.spacing.s4,
+    borderRadius: measures.radius.r6,
     fontFamily: typography.regular,
   },
 
@@ -59,35 +63,35 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
   emptyContainer: {
     alignItems: 'center',
-    paddingHorizontal: 30,
+    paddingHorizontal: measures.spacing.s30 || 30,
     marginTop: "45%",
   },
 
   iconRow: {
-    marginBottom: 24,
+    marginBottom: measures.spacing.s24,
   },
 
   emptyText: {
     textAlign: 'center',
     color: theme.contrastColor,
-    fontSize: 16,
+    fontSize: measures.fontSize.f16,
     fontFamily: typography.bold,
-    marginBottom: 12,
+    marginBottom: measures.spacing.s12,
   },
 
   emptySubtitle: {
     color: theme.contrastColor,
     fontFamily: typography.bold,
-    fontSize: 16
+    fontSize: measures.fontSize.f16
   },
 
   fab: {
     position: 'absolute',
-    right: 24,
-    bottom: 44,
-    width: 66,
-    height: 66,
-    borderRadius: 38,
+    right: measures.spacing.s24,
+    bottom: measures.spacing.s44,
+    width: measures.sizes.fab,
+    height: measures.sizes.fab,
+    borderRadius: measures.radius.round38,
     backgroundColor: theme.primaryColor,
     justifyContent: 'center',
     alignItems: 'center',
@@ -99,7 +103,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
   },
 
   list: {
-    marginTop: 16,
-    gap: 12
+    marginTop: measures.spacing.s16,
+    gap: measures.spacing.s12
   },
 });

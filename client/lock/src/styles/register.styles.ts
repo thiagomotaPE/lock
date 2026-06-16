@@ -1,4 +1,5 @@
 import { typography } from '@/assets/fonts/typography ';
+import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from "react-native";
 
@@ -20,12 +21,12 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     logo: {
-        width: 125,
-        height: 125,
+        width: measures.sizes.logoLarge,
+        height: measures.sizes.logoLarge,
     },
     
     slogan: {
-        fontSize: 22,
+        fontSize: measures.fontSize.f22,
         width: '100%',
         textAlign: "center",
         fontFamily: typography.regular,
@@ -43,7 +44,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     label: {
-        fontSize: 22,
+        fontSize: measures.fontSize.f22,
         fontFamily: typography.regular,
         color: theme.textColor,
         marginBottom: 14
@@ -61,7 +62,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     line: {
         flex: 1,
-        height: 1,
+        height: measures.border.normal,
         backgroundColor: theme.primaryColor
     },
 
@@ -75,10 +76,10 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     googleButton: {
         flexDirection: 'row',
-        height: 48,
-        borderWidth: 1,
+        height: measures.sizes.buttonHeight,
+        borderWidth: measures.border.normal,
         borderColor: theme.primaryColor,
-        borderRadius: 6,
+        borderRadius: measures.radius.r14,
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -86,14 +87,14 @@ export const styles = (theme: Theme) => StyleSheet.create({
     googleText: {
         color: theme.primaryColor,
         fontFamily: typography.semiBold,
-        fontSize: 18
+        fontSize: measures.fontSize.f18
     },
 
     haveAccount: {
         marginTop: "30%",
         textAlign: 'center',
         textDecorationLine: "underline",
-        fontSize: 12,
+        fontSize: measures.fontSize.f12,
         fontFamily: typography.regular,
         color: theme.primaryColor
     }

@@ -1,3 +1,4 @@
+import { measures } from '@/assets/measures/measures';
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
 import { styles } from "@/styles/vault.styles";
@@ -64,7 +65,7 @@ export default function Vault() {
             <View style={style.content}>
                 <View style={style.header}>
                     <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-                        <FontAwesome5 name="stream" size={30} color={theme.primaryColor} />
+                        <FontAwesome5 name="stream" size={measures.icon.xxl} color={theme.primaryColor} />
                     </TouchableOpacity>
                     <View style={style.searchContainer}>
                         <TextInput
@@ -74,7 +75,7 @@ export default function Vault() {
                             value={query}
                             onChangeText={setQuery}
                         />
-                        <FontAwesome5 name="search" size={24} color={theme.primaryColor} />
+                        <FontAwesome5 name="search" size={measures.icon.lg} color={theme.primaryColor} />
                     </View>
                 </View>
 
@@ -83,7 +84,7 @@ export default function Vault() {
                         <Text style={style.filterText}>Tudo</Text>
                     </TouchableOpacity>
                     <TouchableOpacity>
-                        <AntDesign name="folder" size={22} color={theme.textColor} />
+                        <AntDesign name="folder" size={measures.icon.md} color={theme.textColor} onPress={() => router.push('/(drawer)/categories')}/>
                     </TouchableOpacity>
                 </View>
 
@@ -115,7 +116,7 @@ export default function Vault() {
                 )}
 
                 <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
-                    <FontAwesome5 name="plus" size={26} color={theme.textColor2} />
+                    <FontAwesome5 name="plus" size={measures.icon.xl} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

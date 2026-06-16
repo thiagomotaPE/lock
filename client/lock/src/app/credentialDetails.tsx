@@ -1,3 +1,4 @@
+import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -69,11 +70,11 @@ export default function CredentialDetailsScreen() {
     <SafeAreaView style={style.safeArea}>
       <View style={style.header}>
         <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-          <Ionicons name="arrow-back" size={22} color={theme.primaryColor} />
+          <Ionicons name="arrow-back" size={measures.icon.md} color={theme.primaryColor} />
         </TouchableOpacity>
 
         <TouchableOpacity style={style.settingsButton}>
-            <FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />
+          <FontAwesome5 name="ellipsis-v" size={measures.icon.xl} color={theme.primaryColor} />
         </TouchableOpacity>
       </View>
 
@@ -111,7 +112,7 @@ export default function CredentialDetailsScreen() {
                     <TouchableOpacity onPress={() => toggleReveal(field.key)} style={style.iconButton}>
                       <Ionicons
                         name={revealedFields[field.key] ? 'eye-off-outline' : 'eye-outline'}
-                        size={18}
+                        size={measures.icon.xs}
                         color={theme.primaryColor}
                       />
                     </TouchableOpacity>
@@ -122,10 +123,10 @@ export default function CredentialDetailsScreen() {
               </View>
             ))
           )}
-          <TouchableOpacity style={style.editButton} onPress={() => router.push('/(drawer)/credentialForm')}>
-                <Text style={style.editButtonText}>Editar</Text>
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity style={style.editButton} onPress={() => router.push('/(drawer)/credentialForm')}>
+              <Text style={style.editButtonText}>Editar</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

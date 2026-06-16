@@ -1,3 +1,4 @@
+import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/credentialCard.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +16,7 @@ export function CredentialCard({ title, onPress }: CredentialCardProps) {
   return (
     <TouchableOpacity style={style.card} onPress={onPress}>
       <Text style={style.cardText}>{title}</Text>
-      <Ionicons name="lock-closed" size={18} color={theme.primaryColor} />
+      <Ionicons name="lock-closed" size={measures.icon.xs} color={theme.primaryColor} />
     </TouchableOpacity>
   );
 }

@@ -1,6 +1,9 @@
+import { measures } from '@/assets/measures/measures';
+import { Theme } from '@/theme/types';
 import { StyleSheet } from 'react-native';
 
-export const style = StyleSheet.create({
+export const styles = (theme: Theme) =>
+  StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -18,26 +21,26 @@ export const style = StyleSheet.create({
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: measures.spacing.s12,
   },
 
   avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#FFF',
+    width: measures.radius.r21 * 2,
+    height: measures.radius.r21 * 2,
+    borderRadius: measures.radius.r21,
+    backgroundColor: theme.primaryColor,
   },
 
   username: {
-    color: '#FFF',
-    fontSize: 16,
+    color: theme.textColor,
+    fontSize: measures.fontSize.f16,
     fontWeight: '600',
   },
 
   divider: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.4)',
-    marginVertical: 16,
+    height: measures.border.normal,
+    backgroundColor: theme.borderColor,
+    marginVertical: measures.spacing.s16,
   },
 
   item: {
@@ -51,8 +54,8 @@ export const style = StyleSheet.create({
   },
 
   itemText: {
-    color: '#FFF',
-    fontSize: 15,
+    color: theme.textColor,
+    fontSize: measures.fontSize.f15,
   },
 
   logout: {
@@ -60,7 +63,7 @@ export const style = StyleSheet.create({
   },
 
   logoutText: {
-    color: '#FFF',
-    fontSize: 14,
+    color: theme.textColor,
+    fontSize: measures.fontSize.f14,
   },
 });

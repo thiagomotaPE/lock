@@ -1,8 +1,9 @@
 import { typography } from '@/assets/fonts/typography ';
+import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from 'react-native';
 
-export const styles = (theme: Theme) =>
+export const styles = (theme: Theme): any =>
   StyleSheet.create({
     safeArea: {
       flex: 1,
@@ -12,24 +13,27 @@ export const styles = (theme: Theme) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 20,
-      paddingTop: 14,
+      paddingHorizontal: measures.spacing.s20,
+      paddingTop: measures.spacing.s14,
     },
     settingsButton: {
       backgroundColor: theme.backgroundColor,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 999,
+      paddingHorizontal: measures.spacing.s16,
+      paddingVertical: measures.spacing.s10,
+      borderRadius: measures.radius.pill,
     },
     iconButton: {
-      padding: 6,
+      padding: measures.spacing.s6,
     },
     scrollContent: {
-      padding: 20,
-      paddingBottom: 40,
+      padding: measures.spacing.s20,
+      paddingBottom: measures.spacing.s40,
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      height: '100%',
     },
     card: {
-      gap: 14,
+      gap: measures.spacing.s14,
     },
     titleRow: {
       flexDirection: 'row',
@@ -38,58 +42,60 @@ export const styles = (theme: Theme) =>
     },
     titleWrapper: {
       flex: 1,
-      gap: 14,
+      gap: measures.spacing.s14,
     },
     name: {
       fontFamily: typography.bold,
-      fontSize: 28,
+      fontSize: measures.fontSize.f28,
       color: theme.textColor,
     },
     folder: {
       fontFamily: typography.regular,
-      fontSize: 14,
+      fontSize: measures.fontSize.f14,
       color: theme.contrastColor,
     },
     badge: {
       backgroundColor: `${theme.primaryColor}12`,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 999,
+      paddingHorizontal: measures.spacing.s12,
+      paddingVertical: measures.spacing.s6,
+      borderRadius: measures.radius.pill,
     },
     badgeText: {
       fontFamily: typography.bold,
-      fontSize: 12,
+      fontSize: measures.fontSize.f12,
       color: theme.primaryColor,
     },
     fieldCard: {
-      borderWidth: 1,
+      borderWidth: measures.border.normal,
       borderColor: theme.borderColor,
-      borderRadius: 14,
-      padding: 14,
-      backgroundColor: '#FAFAFA',
-      gap: 8,
+      borderRadius: measures.radius.r14,
+      padding: measures.spacing.s14,
+      minHeight: 90,
+      maxHeight: 90,
+      backgroundColor: theme.backgroundColor2,
+      gap: measures.spacing.s8,
     },
     fieldHeader: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 8,
+      gap: measures.spacing.s8,
     },
     fieldLabel: {
       fontFamily: typography.bold,
-      fontSize: 14,
+      fontSize: measures.fontSize.f14,
       color: theme.textColor,
       flex: 1,
     },
     fieldTypeBadge: {
       backgroundColor: theme.borderColor,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 999,
+      paddingHorizontal: measures.spacing.s8,
+      paddingVertical: measures.spacing.s4,
+      borderRadius: measures.radius.pill,
     },
     fieldTypeText: {
       fontFamily: typography.regular,
-      fontSize: 11,
+      fontSize: measures.fontSize.f11,
       color: theme.textColor,
     },
     valueRow: {
@@ -101,33 +107,34 @@ export const styles = (theme: Theme) =>
     value: {
       flex: 1,
       fontFamily: typography.regular,
-      fontSize: 14,
+      fontSize: measures.fontSize.f14,
       color: theme.textColor,
     },
     emptyState: {
-      paddingVertical: 24,
+      paddingVertical: measures.spacing.s24,
       alignItems: 'center',
       justifyContent: 'center',
     },
     emptyText: {
       fontFamily: typography.regular,
-      fontSize: 14,
+      fontSize: measures.fontSize.f14,
       color: theme.contrastColor,
     },
     editButton: {
       backgroundColor: theme.primaryColor,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      marginTop: 310,
-      borderRadius: 6,
+      paddingHorizontal: measures.spacing.s16,
+      paddingVertical: measures.spacing.s14,
+      borderRadius: measures.radius.r14,
+      borderWidth: measures.border.normal,
+      borderColor: theme.primaryColor,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 8,
+      gap: measures.spacing.s8,
     },
     editButtonText: {
       color: theme.textColor2,
       fontFamily: typography.bold,
-      fontSize: 14,
+      fontSize: measures.fontSize.f14,
     },
   });

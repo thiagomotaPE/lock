@@ -1,8 +1,9 @@
-import { useTheme } from '@/theme/useTheme';
+import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/primaryInput.styles';
-import { View, TextInput, TextInputProps } from 'react-native';
+import { useTheme } from '@/theme/useTheme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { TextInput, TextInputProps, View } from 'react-native';
 
 type InputProps = TextInputProps & {
   label: string;
@@ -25,7 +26,7 @@ export function PrimaryInput({ label, icon, ...rest }: InputProps) {
               onBlur={() => setIsSelected(false)}
               {...rest}
             />
-            <MaterialIcons name={icon} size={20} color={isSelected ? theme.primaryColor : theme.contrastColor} />
+            <MaterialIcons name={icon} size={measures.icon.sm} color={isSelected ? theme.primaryColor : theme.contrastColor} />
         </View>
     );
 }
