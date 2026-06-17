@@ -17,22 +17,6 @@ export const styles = (theme: Theme) => StyleSheet.create({
     alignItems: 'center',
     gap: 14,
   },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.backgroundColor2,
-    borderColor: theme.borderColor,
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 10,
-  },
-  searchInput: {
-    flex: 1,
-    height: "100%",
-    fontFamily: typography.regular,
-    color: theme.textColor,
-  },
   emptyContainer: {
     alignItems: 'center',
     paddingHorizontal: 30,

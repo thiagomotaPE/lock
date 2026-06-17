@@ -50,4 +50,8 @@ export const styles = (theme: Theme) =>
       fontSize: 14,
       color: theme.contrastColor,
     },
+    createCategoryButtonText: {
+      fontFamily: typography.bold,
+      fontSize: 16,
+    },
   });

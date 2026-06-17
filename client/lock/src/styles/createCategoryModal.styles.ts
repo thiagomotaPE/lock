@@ -45,7 +45,7 @@ export const styles = (theme: Theme) =>
       fontFamily: typography.regular,
       fontSize: 14,
       color: theme.textColor,
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       marginBottom: 12,
     },
     modalButtons: {
@@ -60,7 +60,7 @@ export const styles = (theme: Theme) =>
       borderRadius: 8,
     },
     cancelButton: {
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       borderColor: theme.borderColor,
       borderWidth: 1,
     },

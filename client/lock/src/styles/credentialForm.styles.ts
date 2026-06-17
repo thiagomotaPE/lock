@@ -119,7 +119,7 @@ export const styles = (theme: Theme) =>
       borderColor: theme.borderColor,
       borderRadius: 14,
       padding: 12,
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       gap: 10,
     },
     actionRow: {
@@ -135,7 +135,7 @@ export const styles = (theme: Theme) =>
       borderRadius: 999,
     },
     cancelButton: {
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       borderWidth: 1,
       borderColor: theme.borderColor,
     },
@@ -188,5 +188,10 @@ export const styles = (theme: Theme) =>
       color: theme.textColor,
       fontFamily: typography.regular,
       fontSize: 15,
+    },
+    saveButtonText: {
+      color: theme.textColor2,
+      fontFamily: typography.bold,
+      fontSize: 20,
     },
   });

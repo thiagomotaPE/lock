@@ -123,7 +123,7 @@ export default function CredentialDetailsScreen() {
             ))
           )}
         </View>
-        <PrimaryButton title="Editar" onPress={() => router.push('/(drawer)/credentialForm')}/>
+        <PrimaryButton title="Editar" onPress={() => router.push('/(drawer)/credentialForm')} textStyle={style.editButtonText}/>
       </ScrollView>
     </SafeAreaView>
   );

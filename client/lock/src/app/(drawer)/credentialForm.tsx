@@ -257,7 +257,7 @@ export default function CredentialFormScreen({
             )}
 
           </View>
-          <PrimaryButton title="Salvar" onPress={() => (handleSave())}/>
+          <PrimaryButton title="Salvar" onPress={() => (handleSave())} textStyle={style.saveButtonText}/>
         </ScrollView>
       </KeyboardAvoidingView>
 

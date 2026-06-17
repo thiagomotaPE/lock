@@ -162,6 +162,7 @@ export default function CategoriesScreen() {
               iconName="plus-circle"
               iconSize={20}
               iconColor={theme.textColor2}
+              textStyle={style.createCategoryButtonText}
             />
           </View>
         )}

@@ -1,4 +1,3 @@
-import { typography } from '@/assets/fonts/typography ';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from 'react-native';
 
@@ -20,7 +19,7 @@ export const styles = (theme: Theme) =>
       paddingRight: 8,
     },
     addButton: {
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       borderColor: theme.borderColor,
       borderWidth: 1,
       paddingHorizontal: 16,

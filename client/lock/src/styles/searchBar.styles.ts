@@ -4,23 +4,20 @@ import { StyleSheet } from 'react-native';
 
 export const styles = (theme: Theme) =>
   StyleSheet.create({
-    categoryButton: {
+    container: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
       backgroundColor: theme.backgroundColor2,
       borderColor: theme.borderColor,
       borderWidth: 1,
-      paddingHorizontal: 16,
-      paddingVertical: 4,
-      borderRadius: 16,
+      borderRadius: 14,
+      paddingHorizontal: 10,
     },
-    categoryButtonActive: {
-      backgroundColor: theme.primaryColor,
-      borderColor: theme.primaryColor,
-    },
-    categoryText: {
+    input: {
+      flex: 1,
+      height: "100%",
       fontFamily: typography.regular,
       color: theme.textColor,
-    },
-    categoryTextActive: {
-      color: theme.textColor2,
     },
   });

@@ -1,6 +1,7 @@
 import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
+import { SearchBar } from "@/components/searchBar";
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from "@expo/vector-icons";
@@ -8,7 +9,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type CredentialItem = {
@@ -68,16 +69,7 @@ export default function Vault() {
                     <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
                         <FontAwesome5 name="stream" size={30} color={theme.primaryColor} />
                     </TouchableOpacity>
-                    <View style={style.searchContainer}>
-                        <TextInput
-                            placeholder="Pesquisar..."
-                            placeholderTextColor={theme.contrastColor}
-                            style={style.searchInput}
-                            value={query}
-                            onChangeText={setQuery}
-                        />
-                        <FontAwesome name="search" size={22} color={theme.primaryColor} />
-                    </View>
+                    <SearchBar onChangeText={setQuery} />
                 </View>
 
                 <CategoryFilter

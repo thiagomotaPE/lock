@@ -28,7 +28,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
     primaryButtonText: {
         color: theme.textColor2,
         fontFamily: typography.bold,
-        fontSize: 18,
+        fontSize: 22,
     },
     primaryButtonTextWithIcon: {
         marginLeft: 8,

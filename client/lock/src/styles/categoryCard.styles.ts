@@ -13,7 +13,7 @@ export const styles = (theme: Theme) =>
       minHeight: 54,
       maxHeight: 54,
       borderRadius: 14,
-      backgroundColor: theme.backgroundColor3,
+      backgroundColor: theme.backgroundColor2,
       borderWidth: 1,
       borderColor: theme.borderColor,
       marginBottom: 8,

@@ -121,6 +121,6 @@ export const styles = (theme: Theme) =>
     editButtonText: {
       color: theme.textColor2,
       fontFamily: typography.bold,
-      fontSize: 14,
+      fontSize: 20,
     },
   });
