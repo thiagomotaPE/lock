@@ -3,6 +3,7 @@ import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
+import { FontAwesome } from "@expo/vector-icons";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -75,7 +76,7 @@ export default function Vault() {
                             value={query}
                             onChangeText={setQuery}
                         />
-                        <FontAwesome5 name="search" size={24} color={theme.primaryColor} />
+                        <FontAwesome name="search" size={22} color={theme.primaryColor} />
                     </View>
                 </View>
 
@@ -113,7 +114,7 @@ export default function Vault() {
                 )}
 
                 <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
-                    <FontAwesome5 name="plus" size={26} color={theme.textColor2} />
+                    <FontAwesome name="plus" size={28} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

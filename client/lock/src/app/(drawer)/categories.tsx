@@ -1,4 +1,7 @@
+import { CategoryCard } from '@/components/categoryCard';
 import { CreateCategoryModal } from '@/components/createCategoryModal';
+import { Header } from '@/components/header';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +12,6 @@ import {
   FlatList,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -121,15 +123,14 @@ export default function CategoriesScreen() {
 
   return (
     <SafeAreaView style={style.safeArea}>
-      <View style={style.header}>
-        <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-          <Ionicons name="arrow-back" size={24} color={theme.primaryColor} />
-        </TouchableOpacity>
-        <Text style={style.headerTitle}>Categorias</Text>
-        <TouchableOpacity style={style.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title="Categorias"
+        onBack={handleBack}
+        onRightPress={() => {
+          // TODO: adicionar ação ao menu se necessário
+        }}
+        rightElement={<Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />}
+      />
 
       <ScrollView contentContainerStyle={style.scrollContent}>
         {isLoading ? (
@@ -147,25 +148,21 @@ export default function CategoriesScreen() {
               scrollEnabled={false}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View style={style.categoryItem}>
-                  <View style={style.categoryContent}>
-                    {item.id === 'all' && (
-                      <View style={style.categoryDot} />
-                    )}
-                    <Text style={style.categoryName}>{item.categoryName}</Text>
-                  </View>
-                  <Text style={style.categoryCount}>{item.count}</Text>
-                </View>
+                <CategoryCard
+                  categoryName={item.categoryName}
+                  count={item.count}
+                  isAll={item.id === 'all'}
+                />
               )}
             />
 
-            <TouchableOpacity
-              style={style.addButton}
+            <PrimaryButton
+              title="Criar nova categoria"
               onPress={() => setModalVisible(true)}
-            >
-              <Ionicons name="add-circle" size={20} color={theme.textColor2} />
-              <Text style={style.addButtonText}>Criar nova categoria</Text>
-            </TouchableOpacity>
+              iconName="plus-circle"
+              iconSize={20}
+              iconColor={theme.textColor2}
+            />
           </View>
         )}
       </ScrollView>

@@ -1,3 +1,5 @@
+import { Header } from '@/components/header';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -5,16 +7,16 @@ import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -132,15 +134,13 @@ export default function CredentialFormScreen({
         style={style.container}
         behavior={Platform.OS === 'android' ? 'padding' : undefined}
       >
-        <View style={style.header}>
-          <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-            <Ionicons name="arrow-back" size={22} color={theme.primaryColor} />
-          </TouchableOpacity>
-         
-          <TouchableOpacity style={style.settingsButton}>
-            <FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />
-          </TouchableOpacity>
-        </View>
+        <Header
+          onBack={handleBack}
+          onRightPress={() => {
+            // TODO: adicionar ação do menu
+          }}
+          rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
+        />
 
         <ScrollView
           contentContainerStyle={style.scrollContent}
@@ -257,9 +257,7 @@ export default function CredentialFormScreen({
             )}
 
           </View>
-          <TouchableOpacity onPress={handleSave} style={style.saveButton}>
-              <Text style={style.saveButtonText}>Salvar</Text>
-          </TouchableOpacity>
+          <PrimaryButton title="Salvar" onPress={() => (handleSave())}/>
         </ScrollView>
       </KeyboardAvoidingView>
 

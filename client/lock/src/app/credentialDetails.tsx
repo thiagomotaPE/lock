@@ -1,3 +1,5 @@
+import { Header } from '@/components/header';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -67,15 +69,13 @@ export default function CredentialDetailsScreen() {
 
   return (
     <SafeAreaView style={style.safeArea}>
-      <View style={style.header}>
-        <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-          <Ionicons name="arrow-back" size={22} color={theme.primaryColor} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={style.settingsButton}>
-            <FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />
-        </TouchableOpacity>
-      </View>
+      <Header
+        onBack={handleBack}
+        onRightPress={() => {
+          // TODO: adicionar ação do menu
+        }}
+        rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
+      />
 
       <ScrollView contentContainerStyle={style.scrollContent}>
         <View style={style.card}>
@@ -123,9 +123,7 @@ export default function CredentialDetailsScreen() {
             ))
           )}
         </View>
-        <TouchableOpacity style={style.editButton} onPress={() => router.push('/(drawer)/credentialForm')}>
-              <Text style={style.editButtonText}>Editar</Text>
-        </TouchableOpacity>
+        <PrimaryButton title="Editar" onPress={() => router.push('/(drawer)/credentialForm')}/>
       </ScrollView>
     </SafeAreaView>
   );

@@ -12,22 +12,6 @@ export const styles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.backgroundColor,
     },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingTop: 14,
-    },
-    iconButton: {
-      padding: 8,
-    },
-    settingsButton: {
-      backgroundColor: theme.backgroundColor,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 999,
-    },
     scrollContent: {
       padding: 20,
       paddingBottom: 40,
@@ -181,23 +165,6 @@ export const styles = (theme: Theme) =>
     },
     addFieldButtonText: {
       color: theme.primaryColor,
-      fontFamily: typography.bold,
-      fontSize: 14,
-    },
-    saveButton: {
-      backgroundColor: theme.primaryColor,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: theme.primaryColor,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-    },
-    saveButtonText: {
-      color: theme.textColor2,
       fontFamily: typography.bold,
       fontSize: 14,
     },

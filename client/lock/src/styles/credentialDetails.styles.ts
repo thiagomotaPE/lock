@@ -8,19 +8,6 @@ export const styles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.backgroundColor,
     },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: 20,
-      paddingTop: 14,
-    },
-    settingsButton: {
-      backgroundColor: theme.backgroundColor,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-      borderRadius: 999,
-    },
     iconButton: {
       padding: 6,
     },

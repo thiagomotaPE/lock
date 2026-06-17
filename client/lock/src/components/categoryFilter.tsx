@@ -1,9 +1,10 @@
+import { CategoryFilterItem } from '@/components/categoryFilterItem';
 import { CreateCategoryModal } from '@/components/createCategoryModal';
 import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 
 type CategoryFilterProps = {
   selectedOption?: string;
@@ -83,23 +84,12 @@ export function CategoryFilter({
           contentContainerStyle={style.filterList}
         >
           {categories.map((option) => (
-            <TouchableOpacity
+            <CategoryFilterItem
               key={option}
-              style={[
-                style.filterButton,
-                option === selectedOption && style.filterButtonActive,
-              ]}
+              label={option}
+              selected={option === selectedOption}
               onPress={() => onSelectOption(option)}
-            >
-              <Text
-                style={[
-                  style.filterText,
-                  option === selectedOption && style.filterTextActive,
-                ]}
-              >
-                {option}
-              </Text>
-            </TouchableOpacity>
+            />
           ))}
         </ScrollView>
 
