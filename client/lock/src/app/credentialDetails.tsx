@@ -1,12 +1,13 @@
+import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type CredentialField = {
@@ -39,20 +40,42 @@ export default function CredentialDetailsScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
-  const params = useLocalSearchParams<{ credential?: string }>();
+  const params = useLocalSearchParams<{ credentialId?: string }>();
+  const [credential, setCredential] = useState<Credential>(defaultCredential);
   const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const credential = useMemo<Credential>(() => {
-    if (typeof params.credential === 'string' && params.credential) {
-      try {
-        return JSON.parse(params.credential) as Credential;
-      } catch {
-        return defaultCredential;
+  useEffect(() => {
+    const fetchCredential = async () => {
+      if (!params.credentialId) {
+        setError('Credencial não encontrada.');
+        setIsLoading(false);
+        return;
       }
-    }
 
-    return defaultCredential;
-  }, [params.credential]);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`http://10.0.2.2:3000/credentials/${params.credentialId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        setCredential(data);
+      } catch (fetchError) {
+        console.warn('Erro ao carregar credencial:', fetchError);
+        setError('Não foi possível carregar a credencial.');
+        setCredential(defaultCredential);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCredential();
+  }, [params.credentialId]);
 
   const handleBack = () => {
     if (navigation.canGoBack?.()) {
@@ -95,31 +118,16 @@ export default function CredentialDetailsScreen() {
             </View>
           ) : (
             credential.fields.map((field) => (
-              <View key={field.key ?? `${field.label}-${field.type}-${field.value}`} style={style.fieldCard}>
-                <View style={style.fieldHeader}>
-                  <Text style={style.fieldLabel}>{field.label}</Text>
-                  <View style={style.fieldTypeBadge}>
-                    <Text style={style.fieldTypeText}>{field.type}</Text>
-                  </View>
-                </View>
-
-                {field.type.toLowerCase().includes('password') ? (
-                  <View style={style.valueRow}>
-                    <Text style={style.value}>
-                      {revealedFields[field.key] ? field.value : '••••••••'}
-                    </Text>
-                    <TouchableOpacity onPress={() => toggleReveal(field.key)} style={style.iconButton}>
-                      <Ionicons
-                        name={revealedFields[field.key] ? 'eye-off-outline' : 'eye-outline'}
-                        size={18}
-                        color={theme.primaryColor}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <Text style={style.value}>{field.value || '—'}</Text>
-                )}
-              </View>
+              <CredentialField
+                key={field.key ?? `${field.label}-${field.type}-${field.value}`}
+                id={field.key}
+                label={field.label}
+                type={field.type}
+                value={field.value}
+                sensitive={field.sensitive}
+                revealed={revealedFields[field.key]}
+                onToggleReveal={toggleReveal}
+              />
             ))
           )}
         </View>

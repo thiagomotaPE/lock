@@ -96,7 +96,7 @@ export default function Vault() {
                             renderItem={({ item }) => (
                                 <CredentialCard
                                     title={item.credentialName || 'Sem título'}
-                                    onPress={() => router.push({ pathname: '/credentialDetails', params: { credential: JSON.stringify(item) } })}
+                                    onPress={() => router.push({ pathname: '/credentialDetails', params: { credentialId: item.id.toString() } })}
                                 />
                             )}
                         />
