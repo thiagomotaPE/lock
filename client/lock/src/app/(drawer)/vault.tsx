@@ -1,9 +1,8 @@
-import { measures } from '@/assets/measures/measures';
+import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -27,6 +26,7 @@ export default function Vault() {
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedFilter, setSelectedFilter] = useState('Tudo');
 
     useEffect(() => {
         const fetchCredentials = async () => {
@@ -65,7 +65,7 @@ export default function Vault() {
             <View style={style.content}>
                 <View style={style.header}>
                     <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-                        <FontAwesome5 name="stream" size={measures.icon.xxl} color={theme.primaryColor} />
+                        <FontAwesome5 name="stream" size={30} color={theme.primaryColor} />
                     </TouchableOpacity>
                     <View style={style.searchContainer}>
                         <TextInput
@@ -75,18 +75,15 @@ export default function Vault() {
                             value={query}
                             onChangeText={setQuery}
                         />
-                        <FontAwesome5 name="search" size={measures.icon.lg} color={theme.primaryColor} />
+                        <FontAwesome5 name="search" size={24} color={theme.primaryColor} />
                     </View>
                 </View>
 
-                <View style={style.filterRow}>
-                    <TouchableOpacity style={style.filter}>
-                        <Text style={style.filterText}>Tudo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <AntDesign name="folder" size={measures.icon.md} color={theme.textColor} onPress={() => router.push('/(drawer)/categories')}/>
-                    </TouchableOpacity>
-                </View>
+                <CategoryFilter
+                    selectedOption={selectedFilter}
+                    onSelectOption={setSelectedFilter}
+                    createPlaceholder="Nome da categoria"
+                />
 
                 {isLoading ? (
                     <View style={style.emptyContainer}>
@@ -116,7 +113,7 @@ export default function Vault() {
                 )}
 
                 <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
-                    <FontAwesome5 name="plus" size={measures.icon.xl} color={theme.textColor2} />
+                    <FontAwesome5 name="plus" size={26} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

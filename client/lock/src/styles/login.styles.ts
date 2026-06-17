@@ -1,5 +1,4 @@
 import { typography } from '@/assets/fonts/typography ';
-import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from "react-native";
 
@@ -21,12 +20,12 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     logo: {
-        width: measures.sizes.logoLarge,
-        height: measures.sizes.logoLarge,
+        width: 125,
+        height: 125,
     },
     
     slogan: {
-        fontSize: measures.fontSize.f22,
+        fontSize: 22,
         width: '100%',
         textAlign: "center",
         fontFamily: typography.regular,
@@ -40,7 +39,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
     },
 
     label: {
-        fontSize: measures.fontSize.f22,
+        fontSize: 22,
         fontFamily: typography.regular,
         color: theme.textColor,
         marginBottom: 14
@@ -54,8 +53,8 @@ export const styles = (theme: Theme) => StyleSheet.create({
         textAlign: 'center',
         textDecorationLine: "underline",
         color: theme.primaryColor,
-        marginVertical: measures.spacing.s12,
-        fontSize: measures.fontSize.f12,
+        marginVertical: 12,
+        fontSize: 12,
         fontFamily: typography.regular
     },
 
@@ -66,7 +65,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     line: {
         flex: 1,
-        height: measures.border.normal,
+        height: 1,
         backgroundColor: theme.primaryColor
     },
 
@@ -79,26 +78,26 @@ export const styles = (theme: Theme) => StyleSheet.create({
 
     googleButton: {
         flexDirection: 'row',
-        height: measures.sizes.buttonHeight,
-        borderWidth: measures.border.normal,
+        height: 48,
+        borderWidth: 1,
         borderColor: theme.primaryColor,
-        borderRadius: measures.radius.r14,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: measures.spacing.s8
+        marginTop: 8
     },
 
     googleText: {
         color: theme.primaryColor,
         fontFamily: typography.semiBold,
-        fontSize: measures.fontSize.f18
+        fontSize: 18
     },
 
     register: {
         marginTop: "55%",
         textAlign: 'center',
         textDecorationLine: "underline",
-        fontSize: measures.fontSize.f12,
+        fontSize: 12,
         fontFamily: typography.regular,
         color: theme.primaryColor
     }

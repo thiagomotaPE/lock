@@ -1,4 +1,3 @@
-import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -6,16 +5,16 @@ import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -135,11 +134,11 @@ export default function CredentialFormScreen({
       >
         <View style={style.header}>
           <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-            <Ionicons name="arrow-back" size={measures.icon.md} color={theme.primaryColor} />
+            <Ionicons name="arrow-back" size={22} color={theme.primaryColor} />
           </TouchableOpacity>
          
           <TouchableOpacity style={style.settingsButton}>
-            <FontAwesome5 name="ellipsis-v" size={measures.icon.xl} color={theme.primaryColor} />
+            <FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />
           </TouchableOpacity>
         </View>
 
@@ -163,7 +162,7 @@ export default function CredentialFormScreen({
                 onPress={() => setFolderModalVisible(true)}
               >
                 <Text style={style.selectText}>{folder}</Text>
-                <Ionicons name="chevron-down" size={measures.icon.xs} color={theme.primaryColor} />
+                <Ionicons name="chevron-down" size={18} color={theme.primaryColor} />
               </TouchableOpacity>
             </View>
 
@@ -252,7 +251,7 @@ export default function CredentialFormScreen({
               </View>
             ) : (
               <TouchableOpacity style={style.addFieldButton} onPress={() => setAddingField(true)}>
-                <Ionicons name="add-circle-outline" size={measures.icon.sm} color={theme.primaryColor} />
+                <Ionicons name="add-circle-outline" size={20} color={theme.primaryColor} />
                 <Text style={style.addFieldButtonText}>Adicionar campo</Text>
               </TouchableOpacity>
             )}

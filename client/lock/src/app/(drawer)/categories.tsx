@@ -1,19 +1,16 @@
-import { measures } from '@/assets/measures/measures';
+import { CreateCategoryModal } from '@/components/createCategoryModal';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -126,11 +123,11 @@ export default function CategoriesScreen() {
     <SafeAreaView style={style.safeArea}>
       <View style={style.header}>
         <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-          <Ionicons name="arrow-back" size={measures.icon.lg} color={theme.primaryColor} />
+          <Ionicons name="arrow-back" size={24} color={theme.primaryColor} />
         </TouchableOpacity>
         <Text style={style.headerTitle}>Categorias</Text>
         <TouchableOpacity style={style.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={measures.icon.lg} color={theme.primaryColor} />
+          <Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />
         </TouchableOpacity>
       </View>
 
@@ -166,49 +163,21 @@ export default function CategoriesScreen() {
               style={style.addButton}
               onPress={() => setModalVisible(true)}
             >
-              <Ionicons name="add-circle" size={measures.icon.sm} color={theme.textColor2} />
+              <Ionicons name="add-circle" size={20} color={theme.textColor2} />
               <Text style={style.addButtonText}>Criar nova categoria</Text>
             </TouchableOpacity>
           </View>
         )}
       </ScrollView>
 
-      <Modal transparent visible={modalVisible} animationType="fade">
-        <Pressable
-          style={style.modalOverlay}
-          onPress={() => !isSubmitting && setModalVisible(false)}
-        >
-          <View style={style.modalContent}>
-            <Text style={style.modalTitle}>Nova categoria</Text>
-            <TextInput
-              style={style.modalInput}
-              placeholder="Nome da categoria"
-              placeholderTextColor={theme.contrastColor}
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              editable={!isSubmitting}
-            />
-            <View style={style.modalButtons}>
-              <TouchableOpacity
-                style={[style.button, style.cancelButton]}
-                onPress={() => !isSubmitting && setModalVisible(false)}
-                disabled={isSubmitting}
-              >
-                <Text style={style.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[style.button, style.createButton]}
-                onPress={handleAddCategory}
-                disabled={isSubmitting}
-              >
-                <Text style={style.createButtonText}>
-                  {isSubmitting ? 'Criando...' : 'Criar'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Pressable>
-      </Modal>
+      <CreateCategoryModal
+        visible={modalVisible}
+        value={newCategoryName}
+        isSubmitting={isSubmitting}
+        onRequestClose={() => setModalVisible(false)}
+        onChangeText={setNewCategoryName}
+        onSubmit={handleAddCategory}
+      />
     </SafeAreaView>
   );
 }

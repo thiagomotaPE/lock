@@ -1,4 +1,3 @@
-import { measures } from '@/assets/measures/measures';
 import { Theme } from '@/theme/types';
 import { StyleSheet } from 'react-native';
 
@@ -21,26 +20,26 @@ export const styles = (theme: Theme) =>
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: measures.spacing.s12,
+    gap: 12,
   },
 
   avatar: {
-    width: measures.radius.r21 * 2,
-    height: measures.radius.r21 * 2,
-    borderRadius: measures.radius.r21,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: theme.primaryColor,
   },
 
   username: {
     color: theme.textColor,
-    fontSize: measures.fontSize.f16,
+    fontSize: 16,
     fontWeight: '600',
   },
 
   divider: {
-    height: measures.border.normal,
+    height: 1,
     backgroundColor: theme.borderColor,
-    marginVertical: measures.spacing.s16,
+    marginVertical: 16,
   },
 
   item: {
@@ -55,7 +54,7 @@ export const styles = (theme: Theme) =>
 
   itemText: {
     color: theme.textColor,
-    fontSize: measures.fontSize.f15,
+    fontSize: 15,
   },
 
   logout: {
@@ -64,6 +63,6 @@ export const styles = (theme: Theme) =>
 
   logoutText: {
     color: theme.textColor,
-    fontSize: measures.fontSize.f14,
+    fontSize: 14,
   },
 });
