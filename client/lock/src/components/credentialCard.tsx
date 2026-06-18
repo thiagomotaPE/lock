@@ -1,7 +1,6 @@
-import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/credentialCard.styles';
 import { useTheme } from '@/theme/useTheme';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { Text, TouchableOpacity } from 'react-native';
 
 type CredentialCardProps = {
@@ -16,7 +15,7 @@ export function CredentialCard({ title, onPress }: CredentialCardProps) {
   return (
     <TouchableOpacity style={style.card} onPress={onPress}>
       <Text style={style.cardText}>{title}</Text>
-      <Ionicons name="lock-closed" size={measures.icon.xs} color={theme.primaryColor} />
+      <FontAwesome name="lock" size={22} color={theme.primaryColor} />
     </TouchableOpacity>
   );
 }

@@ -1,4 +1,5 @@
-import { measures } from '@/assets/measures/measures';
+import { Header } from '@/components/header';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -133,15 +134,13 @@ export default function CredentialFormScreen({
         style={style.container}
         behavior={Platform.OS === 'android' ? 'padding' : undefined}
       >
-        <View style={style.header}>
-          <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-            <Ionicons name="arrow-back" size={measures.icon.md} color={theme.primaryColor} />
-          </TouchableOpacity>
-         
-          <TouchableOpacity style={style.settingsButton}>
-            <FontAwesome5 name="ellipsis-v" size={measures.icon.xl} color={theme.primaryColor} />
-          </TouchableOpacity>
-        </View>
+        <Header
+          onBack={handleBack}
+          menuOptions={[
+            {label: 'Excluir', onPress: () => {}}
+          ]}
+          rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
+        />
 
         <ScrollView
           contentContainerStyle={style.scrollContent}
@@ -163,7 +162,7 @@ export default function CredentialFormScreen({
                 onPress={() => setFolderModalVisible(true)}
               >
                 <Text style={style.selectText}>{folder}</Text>
-                <Ionicons name="chevron-down" size={measures.icon.xs} color={theme.primaryColor} />
+                <Ionicons name="chevron-down" size={18} color={theme.primaryColor} />
               </TouchableOpacity>
             </View>
 
@@ -252,15 +251,13 @@ export default function CredentialFormScreen({
               </View>
             ) : (
               <TouchableOpacity style={style.addFieldButton} onPress={() => setAddingField(true)}>
-                <Ionicons name="add-circle-outline" size={measures.icon.sm} color={theme.primaryColor} />
+                <Ionicons name="add-circle-outline" size={20} color={theme.primaryColor} />
                 <Text style={style.addFieldButtonText}>Adicionar campo</Text>
               </TouchableOpacity>
             )}
 
           </View>
-          <TouchableOpacity onPress={handleSave} style={style.saveButton}>
-              <Text style={style.saveButtonText}>Salvar</Text>
-          </TouchableOpacity>
+          <PrimaryButton title="Salvar" onPress={() => (handleSave())} textStyle={style.saveButtonText}/>
         </ScrollView>
       </KeyboardAvoidingView>
 

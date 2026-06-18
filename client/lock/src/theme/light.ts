@@ -1,10 +1,9 @@
 export const light = {
     mode: 'light',
     backgroundColor: "#FFFFFF",
-    backgroundColor2: "#FAFAFA",
-    backgroundColor3: "#F7F7F9",
+    backgroundColor2: "#F7F7F9",
     primaryColor: "#2F13DE",
-    destaqueColor: '#D64545', 
+    dangerColor: '#D64545', 
     textColor: "#000000",
     textColor2: "#FFFFFF",
     borderColor: "#E0E0E0",

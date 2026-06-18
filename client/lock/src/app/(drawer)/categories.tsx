@@ -1,19 +1,19 @@
-import { measures } from '@/assets/measures/measures';
+import { CategoryCard } from '@/components/categoryCard';
+import { CreateCategoryModal } from '@/components/createCategoryModal';
+import { Header } from '@/components/header';
+import { PrimaryButton } from '@/components/primaryButton';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    Pressable,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  ScrollView,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -61,20 +61,13 @@ export default function CategoriesScreen() {
       // Contar credenciais por categoria
       const categoriesWithCount = categoriesData.map((cat) => ({
         ...cat,
-        count: credentialsData.filter((cred) => cred.categoryId === cat.id).length,
+        count:
+          cat.categoryName === 'Tudo'
+            ? credentialsData.length
+            : credentialsData.filter((cred) => cred.categoryId === cat.id).length,
       }));
 
-      // Adicionar "Tudo" no início
-      const withAll = [
-        {
-          id: 'all',
-          categoryName: 'Tudo',
-          count: credentialsData.length,
-        },
-        ...categoriesWithCount,
-      ];
-
-      setCategories(withAll);
+      setCategories(categoriesWithCount);
     } catch (err) {
       setError('Não foi possível carregar as categorias.');
     } finally {
@@ -124,15 +117,14 @@ export default function CategoriesScreen() {
 
   return (
     <SafeAreaView style={style.safeArea}>
-      <View style={style.header}>
-        <TouchableOpacity onPress={handleBack} style={style.iconButton}>
-          <Ionicons name="arrow-back" size={measures.icon.lg} color={theme.primaryColor} />
-        </TouchableOpacity>
-        <Text style={style.headerTitle}>Categorias</Text>
-        <TouchableOpacity style={style.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={measures.icon.lg} color={theme.primaryColor} />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title="Categorias"
+        onBack={handleBack}
+        menuOptions={[
+          {label: 'Excluir', onPress: () => {}}
+        ]}
+        rightElement={<Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />}
+      />
 
       <ScrollView contentContainerStyle={style.scrollContent}>
         {isLoading ? (
@@ -150,65 +142,34 @@ export default function CategoriesScreen() {
               scrollEnabled={false}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View style={style.categoryItem}>
-                  <View style={style.categoryContent}>
-                    {item.id === 'all' && (
-                      <View style={style.categoryDot} />
-                    )}
-                    <Text style={style.categoryName}>{item.categoryName}</Text>
-                  </View>
-                  <Text style={style.categoryCount}>{item.count}</Text>
-                </View>
+                <CategoryCard
+                  categoryName={item.categoryName}
+                  count={item.count}
+                  onPress={() => router.push({ pathname: '/(drawer)/vault', params: { selectedCategory: item.categoryName } })}
+                />
               )}
             />
 
-            <TouchableOpacity
-              style={style.addButton}
+            <PrimaryButton
+              title="Criar nova categoria"
               onPress={() => setModalVisible(true)}
-            >
-              <Ionicons name="add-circle" size={measures.icon.sm} color={theme.textColor2} />
-              <Text style={style.addButtonText}>Criar nova categoria</Text>
-            </TouchableOpacity>
+              iconName="plus-circle"
+              iconSize={20}
+              iconColor={theme.textColor2}
+              textStyle={style.createCategoryButtonText}
+            />
           </View>
         )}
       </ScrollView>
 
-      <Modal transparent visible={modalVisible} animationType="fade">
-        <Pressable
-          style={style.modalOverlay}
-          onPress={() => !isSubmitting && setModalVisible(false)}
-        >
-          <View style={style.modalContent}>
-            <Text style={style.modalTitle}>Nova categoria</Text>
-            <TextInput
-              style={style.modalInput}
-              placeholder="Nome da categoria"
-              placeholderTextColor={theme.contrastColor}
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              editable={!isSubmitting}
-            />
-            <View style={style.modalButtons}>
-              <TouchableOpacity
-                style={[style.button, style.cancelButton]}
-                onPress={() => !isSubmitting && setModalVisible(false)}
-                disabled={isSubmitting}
-              >
-                <Text style={style.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[style.button, style.createButton]}
-                onPress={handleAddCategory}
-                disabled={isSubmitting}
-              >
-                <Text style={style.createButtonText}>
-                  {isSubmitting ? 'Criando...' : 'Criar'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Pressable>
-      </Modal>
+      <CreateCategoryModal
+        visible={modalVisible}
+        value={newCategoryName}
+        isSubmitting={isSubmitting}
+        onRequestClose={() => setModalVisible(false)}
+        onChangeText={setNewCategoryName}
+        onSubmit={handleAddCategory}
+      />
     </SafeAreaView>
   );
 }

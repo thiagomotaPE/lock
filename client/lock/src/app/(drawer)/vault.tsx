@@ -1,14 +1,15 @@
-import { measures } from '@/assets/measures/measures';
+import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
+import { SearchBar } from "@/components/searchBar";
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { FontAwesome } from "@expo/vector-icons";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type CredentialItem = {
@@ -23,39 +24,50 @@ export default function Vault() {
     const { theme } = useTheme();
     const style = styles(theme);
     const navigation = useNavigation();
+    const params = useLocalSearchParams<{ selectedCategory?: string }>();
     const [credentials, setCredentials] = useState<CredentialItem[]>([]);
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedFilter, setSelectedFilter] = useState(params.selectedCategory ?? 'Tudo');
 
     useEffect(() => {
-        const fetchCredentials = async () => {
-            setIsLoading(true);
-            setError(null);
+      const loadCredentials = async () => {
+        setIsLoading(true);
+        setError(null);
 
-            try {
-                const response = await fetch('http://10.0.2.2:3000/credentials');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                setCredentials(data);
-            } catch (fetchError) {
-                setError('Não foi possível carregar as credenciais. Verifique se o json-server está rodando.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        try {
+          const response = await fetch('http://10.0.2.2:3000/credentials');
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
 
-        fetchCredentials();
-    }, []);
+          const data = await response.json();
+          setCredentials(data);
+        } catch (fetchError) {
+          setError('Não foi possível carregar as credenciais. Verifique se o json-server está rodando.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (params.selectedCategory) {
+        setSelectedFilter(params.selectedCategory);
+      }
+
+      loadCredentials();
+    }, [params.selectedCategory]);
 
     const filteredCredentials = useMemo(
         () => credentials.filter((item) => {
             const title = (item.credentialName || '').toString().toLowerCase();
-            return title.includes(query.toLowerCase());
+            const matchesQuery = title.includes(query.toLowerCase());
+            const matchesCategory = selectedFilter && selectedFilter !== 'Tudo'
+                ? item.categoryName === selectedFilter
+                : true;
+            return matchesQuery && matchesCategory;
         }),
-        [credentials, query]
+        [credentials, query, selectedFilter]
     );
 
     const hasData = filteredCredentials.length > 0;
@@ -65,28 +77,16 @@ export default function Vault() {
             <View style={style.content}>
                 <View style={style.header}>
                     <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-                        <FontAwesome5 name="stream" size={measures.icon.xxl} color={theme.primaryColor} />
+                        <FontAwesome5 name="stream" size={30} color={theme.primaryColor} />
                     </TouchableOpacity>
-                    <View style={style.searchContainer}>
-                        <TextInput
-                            placeholder="Pesquisar..."
-                            placeholderTextColor={theme.contrastColor}
-                            style={style.searchInput}
-                            value={query}
-                            onChangeText={setQuery}
-                        />
-                        <FontAwesome5 name="search" size={measures.icon.lg} color={theme.primaryColor} />
-                    </View>
+                    <SearchBar onChangeText={setQuery} />
                 </View>
 
-                <View style={style.filterRow}>
-                    <TouchableOpacity style={style.filter}>
-                        <Text style={style.filterText}>Tudo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <AntDesign name="folder" size={measures.icon.md} color={theme.textColor} onPress={() => router.push('/(drawer)/categories')}/>
-                    </TouchableOpacity>
-                </View>
+                <CategoryFilter
+                    selectedOption={selectedFilter}
+                    onSelectOption={setSelectedFilter}
+                    createPlaceholder="Nome da categoria"
+                />
 
                 {isLoading ? (
                     <View style={style.emptyContainer}>
@@ -106,7 +106,7 @@ export default function Vault() {
                             renderItem={({ item }) => (
                                 <CredentialCard
                                     title={item.credentialName || 'Sem título'}
-                                    onPress={() => router.push({ pathname: '/credentialDetails', params: { credential: JSON.stringify(item) } })}
+                                    onPress={() => router.push({ pathname: '/credentialDetails', params: { credentialId: item.id.toString() } })}
                                 />
                             )}
                         />
@@ -116,7 +116,7 @@ export default function Vault() {
                 )}
 
                 <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
-                    <FontAwesome5 name="plus" size={measures.icon.xl} color={theme.textColor2} />
+                    <FontAwesome name="plus" size={28} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

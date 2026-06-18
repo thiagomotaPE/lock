@@ -1,4 +1,3 @@
-import { measures } from '@/assets/measures/measures';
 import { styles } from '@/styles/isEmpty.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -11,7 +10,7 @@ export function IsEmpty() {
     return (
         <View style={style.emptyContainer}>
             <View style={style.iconRow}>
-                <FontAwesome5 name="user-lock" size={measures.icon.huge} color={theme.borderColor} />
+                <FontAwesome5 name="user-lock" size={150} color={theme.borderColor} />
             </View>
 
             <Text style={style.emptyText}>
