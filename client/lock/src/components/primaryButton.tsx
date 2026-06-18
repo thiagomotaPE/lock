@@ -43,7 +43,7 @@ export function PrimaryButton({
 
   return (
     <TouchableOpacity style={[style.primaryButton, buttonStyle]} onPress={handlePress}>
-      <View style={style.primaryButtonContent}>
+      <View style={[style.primaryButtonContent, buttonStyle]}>
         {iconName && (
           <FontAwesome name={iconName} size={iconSize} color={iconColor ?? theme.textColor2} />
         )}

@@ -110,7 +110,7 @@ export const styles = (theme: Theme) =>
       paddingVertical: 6,
     },
     removeButtonText: {
-      color: theme.destaqueColor,
+      color: theme.dangerColor,
       fontFamily: typography.bold,
       fontSize: 13,
     },
