@@ -19,12 +19,12 @@ export const styles = (theme: Theme) =>
       paddingRight: 8,
     },
     addButton: {
-      backgroundColor: theme.backgroundColor2,
+      backgroundColor: theme.backgroundColor,
       borderColor: theme.borderColor,
       borderWidth: 1,
       paddingHorizontal: 16,
       paddingVertical: 4,
       borderRadius: 16,
-      marginLeft: 14,
+      marginLeft: 10,
     },
   });

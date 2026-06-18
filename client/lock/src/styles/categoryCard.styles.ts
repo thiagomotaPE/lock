@@ -24,12 +24,6 @@ export const styles = (theme: Theme) =>
       gap: 10,
       flex: 1,
     },
-    categoryDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: theme.primaryColor,
-    },
     categoryName: {
       fontFamily: typography.regular,
       color: theme.textColor,

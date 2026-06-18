@@ -7,7 +7,7 @@ import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from "@expo/vector-icons";
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,40 +24,50 @@ export default function Vault() {
     const { theme } = useTheme();
     const style = styles(theme);
     const navigation = useNavigation();
+    const params = useLocalSearchParams<{ selectedCategory?: string }>();
     const [credentials, setCredentials] = useState<CredentialItem[]>([]);
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedFilter, setSelectedFilter] = useState('Tudo');
+    const [selectedFilter, setSelectedFilter] = useState(params.selectedCategory ?? 'Tudo');
 
     useEffect(() => {
-        const fetchCredentials = async () => {
-            setIsLoading(true);
-            setError(null);
+      const loadCredentials = async () => {
+        setIsLoading(true);
+        setError(null);
 
-            try {
-                const response = await fetch('http://10.0.2.2:3000/credentials');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                setCredentials(data);
-            } catch (fetchError) {
-                setError('Não foi possível carregar as credenciais. Verifique se o json-server está rodando.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        try {
+          const response = await fetch('http://10.0.2.2:3000/credentials');
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
 
-        fetchCredentials();
-    }, []);
+          const data = await response.json();
+          setCredentials(data);
+        } catch (fetchError) {
+          setError('Não foi possível carregar as credenciais. Verifique se o json-server está rodando.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      if (params.selectedCategory) {
+        setSelectedFilter(params.selectedCategory);
+      }
+
+      loadCredentials();
+    }, [params.selectedCategory]);
 
     const filteredCredentials = useMemo(
         () => credentials.filter((item) => {
             const title = (item.credentialName || '').toString().toLowerCase();
-            return title.includes(query.toLowerCase());
+            const matchesQuery = title.includes(query.toLowerCase());
+            const matchesCategory = selectedFilter && selectedFilter !== 'Tudo'
+                ? item.categoryName === selectedFilter
+                : true;
+            return matchesQuery && matchesCategory;
         }),
-        [credentials, query]
+        [credentials, query, selectedFilter]
     );
 
     const hasData = filteredCredentials.length > 0;

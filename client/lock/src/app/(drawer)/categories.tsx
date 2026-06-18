@@ -6,6 +6,7 @@ import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -60,20 +61,13 @@ export default function CategoriesScreen() {
       // Contar credenciais por categoria
       const categoriesWithCount = categoriesData.map((cat) => ({
         ...cat,
-        count: credentialsData.filter((cred) => cred.categoryId === cat.id).length,
+        count:
+          cat.categoryName === 'Tudo'
+            ? credentialsData.length
+            : credentialsData.filter((cred) => cred.categoryId === cat.id).length,
       }));
 
-      // Adicionar "Tudo" no início
-      const withAll = [
-        {
-          id: 'all',
-          categoryName: 'Tudo',
-          count: credentialsData.length,
-        },
-        ...categoriesWithCount,
-      ];
-
-      setCategories(withAll);
+      setCategories(categoriesWithCount);
     } catch (err) {
       setError('Não foi possível carregar as categorias.');
     } finally {
@@ -151,7 +145,7 @@ export default function CategoriesScreen() {
                 <CategoryCard
                   categoryName={item.categoryName}
                   count={item.count}
-                  isAll={item.id === 'all'}
+                  onPress={() => router.push({ pathname: '/(drawer)/vault', params: { selectedCategory: item.categoryName } })}
                 />
               )}
             />

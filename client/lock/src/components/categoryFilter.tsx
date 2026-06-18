@@ -16,7 +16,7 @@ type CategoryFilterProps = {
 export function CategoryFilter({
   selectedOption,
   onSelectOption,
-  addIconName = 'plus-circle',
+  addIconName = 'plus',
   createPlaceholder = 'Nome da categoria',
 }: CategoryFilterProps) {
   const { theme } = useTheme();
