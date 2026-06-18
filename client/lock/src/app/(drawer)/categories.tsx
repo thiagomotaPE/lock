@@ -120,9 +120,9 @@ export default function CategoriesScreen() {
       <Header
         title="Categorias"
         onBack={handleBack}
-        onRightPress={() => {
-          // TODO: adicionar ação ao menu se necessário
-        }}
+        menuOptions={[
+          {label: 'Excluir', onPress: () => {}}
+        ]}
         rightElement={<Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />}
       />
 

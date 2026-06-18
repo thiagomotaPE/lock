@@ -94,9 +94,9 @@ export default function CredentialDetailsScreen() {
     <SafeAreaView style={style.safeArea}>
       <Header
         onBack={handleBack}
-        onRightPress={() => {
-          // TODO: adicionar ação do menu
-        }}
+        menuOptions={[
+          {label: 'Excluir', onPress: () => {}},
+        ]}
         rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
       />
 
