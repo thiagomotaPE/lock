@@ -1,6 +1,8 @@
 import { styles } from '@/styles/credentialField.styles';
 import { useTheme } from '@/theme/useTheme';
-import { Ionicons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as Clipboard from 'expo-clipboard';
+import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 type CredentialFieldProps = {
@@ -25,11 +27,26 @@ export function CredentialField({
   const { theme } = useTheme();
   const style = styles(theme);
   const isPassword = type.toLowerCase().includes('password');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!value) return;
+
+    await Clipboard.setStringAsync(value);
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 1200);
+  };
 
   return (
-    <View style={style.fieldCard}>
+    <TouchableOpacity style={style.fieldCard} onPress={handleCopy} activeOpacity={0.8}>
       <View style={style.fieldHeader}>
-        <Text style={style.fieldLabel}>{label}</Text>
+        <Text style={style.fieldLabel}>
+          {label}   <FontAwesome name="clipboard" size={16} color={theme.primaryColor} />
+        </Text>
         <View style={style.fieldTypeBadge}>
           <Text style={style.fieldTypeText}>{type}</Text>
         </View>
@@ -42,8 +59,8 @@ export function CredentialField({
             onPress={() => onToggleReveal?.(id)}
             style={style.iconButton}
           >
-            <Ionicons
-              name={revealed ? 'eye-off-outline' : 'eye-outline'}
+            <FontAwesome
+              name={revealed ? 'eye-slash' : 'eye'}
               size={18}
               color={theme.primaryColor}
             />
@@ -52,6 +69,12 @@ export function CredentialField({
       ) : (
         <Text style={style.value}>{value || '—'}</Text>
       )}
-    </View>
+
+      {copied && (
+        <View style={style.copiedToast}>
+          <Text style={style.copiedText}>Copiado</Text>
+        </View>
+      )}
+    </TouchableOpacity>
   );
 }

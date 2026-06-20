@@ -57,4 +57,19 @@ export const styles = (theme: Theme) =>
       borderRadius: 12,
       backgroundColor: theme.backgroundColor2,
     },
+    copiedToast: {
+      position: 'absolute',
+      top: -10,
+      right: 10,
+      backgroundColor: theme.primaryColor,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+      zIndex: 10,
+    },
+
+    copiedText: {
+      color: theme.textColor2,
+      fontSize: 12,
+    }
   });
