@@ -8,6 +8,7 @@ import { styles } from '@/styles/primaryButton.styles';
 type ButtonProps = {
   title: string;
   route?: Href;
+  replace?: Href;
   onPress?: () => void;
   iconName?: React.ComponentProps<typeof FontAwesome>['name'];
   iconSize?: number;
@@ -19,6 +20,7 @@ type ButtonProps = {
 export function PrimaryButton({
   title,
   route,
+  replace,
   onPress,
   iconName,
   iconSize = 20,
@@ -38,6 +40,10 @@ export function PrimaryButton({
 
     if (route) {
       router.push(route);
+    }
+    
+    if (replace) {
+      router.replace(replace);
     }
   };
 

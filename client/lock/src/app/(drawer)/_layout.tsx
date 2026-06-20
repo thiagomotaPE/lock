@@ -2,7 +2,8 @@ import { PrimaryButton } from '@/components/primaryButton';
 import { useTheme } from '@/theme/useTheme';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { Drawer } from 'expo-router/drawer';
-import { Switch, Text, View } from 'react-native';
+import { Image, Switch, Text, View } from 'react-native';
+const avatarUri = 'userImage';
 
 function CustomDrawerContent({
   props,
@@ -30,6 +31,7 @@ function CustomDrawerContent({
         style={{
           borderTopWidth: 1,
           borderTopColor: theme.borderColor,
+          borderRadius: 10,
           paddingHorizontal: 16,
           paddingVertical: 16,
           marginTop: 20,
@@ -51,7 +53,7 @@ function CustomDrawerContent({
         </View>
       </View>
 
-      <PrimaryButton title={'Sair'} route='/login' 
+      <PrimaryButton title={'Sair'} replace='/login' 
         buttonStyle={{
           backgroundColor: theme.backgroundColor2, 
           borderColor: theme.borderColor, 
@@ -90,9 +92,34 @@ export default function DrawerLayout() {
         />
       )}
     >
+      <Drawer.Screen name="userProfile" options={{ title: 'Thiago Mota',
+        drawerIcon: () => (
+          <View
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              backgroundColor: theme.borderColor,
+              overflow: 'hidden',
+            }}
+          >
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={{ width: 64, height: 64 }} />
+            ) : null}
+          </View>
+        ),
+        drawerItemStyle: {
+            paddingVertical: 12,
+            borderBottomColor: theme.borderColor,
+            borderBottomWidth: 1,
+            borderRadius: 12,
+            marginBottom: 16,
+
+          }
+        }}
+      />
       <Drawer.Screen name="vault" options={{ title: 'Credenciais' }} />
       <Drawer.Screen name="categories" options={{ title: 'Categorias' }} />
-      <Drawer.Screen name="credentialForm" options={{ title: 'Criar nova credencial' }} />
     </Drawer>
   );
 }
