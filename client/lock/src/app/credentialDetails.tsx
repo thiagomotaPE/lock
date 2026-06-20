@@ -1,6 +1,7 @@
 import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -45,6 +46,7 @@ export default function CredentialDetailsScreen() {
   const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCredential = async () => {
@@ -90,12 +92,22 @@ export default function CredentialDetailsScreen() {
     setRevealedFields((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleDeleteCredential = async () => {
+    setDeleteModalVisible(false);
+
+    try {
+      router.back();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <SafeAreaView style={style.safeArea}>
       <Header
         onBack={handleBack}
         menuOptions={[
-          {label: 'Excluir', onPress: () => {}},
+          {label: 'Excluir', onPress: () => setDeleteModalVisible(true)},
         ]}
         rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
       />
@@ -131,7 +143,18 @@ export default function CredentialDetailsScreen() {
             ))
           )}
         </View>
-        <PrimaryButton title="Editar" onPress={() => router.push('/(drawer)/credentialForm')} textStyle={style.editButtonText}/>
+        <PrimaryButton title="Editar" onPress={() => router.push('/credentialForm')} textStyle={style.editButtonText}/>
+
+        <PrimaryModal
+          visible={deleteModalVisible}
+          title="Deseja mesmo excluir a credencial?"
+          bodyType="text"
+          text="Certifique-se de que não vai mais precisar desta credencial antes de apagá-la"
+          confirmText="Excluir"
+          isSubmitting={false}
+          onRequestClose={() => setDeleteModalVisible(false)}
+          onSubmit={handleDeleteCredential}
+        />
       </ScrollView>
     </SafeAreaView>
   );

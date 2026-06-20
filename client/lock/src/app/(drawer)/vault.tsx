@@ -115,7 +115,7 @@ export default function Vault() {
                     <IsEmpty />
                 )}
 
-                <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
+                <TouchableOpacity style={style.fab} onPress={() => router.push('/credentialForm')}>
                     <FontAwesome name="plus" size={28} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>

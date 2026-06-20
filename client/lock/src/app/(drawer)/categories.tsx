@@ -1,7 +1,7 @@
 import { CategoryCard } from '@/components/categoryCard';
-import { CreateCategoryModal } from '@/components/createCategoryModal';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -162,13 +162,17 @@ export default function CategoriesScreen() {
         )}
       </ScrollView>
 
-      <CreateCategoryModal
+      <PrimaryModal
         visible={modalVisible}
+        title='Nova categoria'
         value={newCategoryName}
+        bodyType="input"
+        placeholder={"Nome da categoria"}
         isSubmitting={isSubmitting}
         onRequestClose={() => setModalVisible(false)}
         onChangeText={setNewCategoryName}
         onSubmit={handleAddCategory}
+        confirmText="Criar"
       />
     </SafeAreaView>
   );

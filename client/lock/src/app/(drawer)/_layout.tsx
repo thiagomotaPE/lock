@@ -1,7 +1,10 @@
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryModal } from '@/components/primaryModal';
 import { useTheme } from '@/theme/useTheme';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import { useState } from 'react';
 import { Image, Switch, Text, View } from 'react-native';
 const avatarUri = 'userImage';
 
@@ -15,7 +18,16 @@ function CustomDrawerContent({
   theme: ReturnType<typeof useTheme>['theme'];
   isDark: boolean;
   toggleTheme: () => void;
-}) {
+})
+{
+    const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+    const router = useRouter();
+
+    const handleLogout = () => {
+      setLogoutModalVisible(false);
+      router.replace('/login');
+    };
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -53,7 +65,7 @@ function CustomDrawerContent({
         </View>
       </View>
 
-      <PrimaryButton title={'Sair'} replace='/login' 
+      <PrimaryButton title={'Sair'} onPress={() => setLogoutModalVisible(true)}
         buttonStyle={{
           backgroundColor: theme.backgroundColor2, 
           borderColor: theme.borderColor, 
@@ -62,7 +74,19 @@ function CustomDrawerContent({
         textStyle={{
           fontSize: 16, 
           color: theme.dangerColor
-        }}/>
+        }}
+      />
+
+      <PrimaryModal
+        visible={logoutModalVisible}
+        title="Deseja sair da sua conta?"
+        bodyType="text"
+        text="Quer mesmo ir? Nós já preparamos a playlist de saudade!"
+        isSubmitting={false}
+        onRequestClose={() => setLogoutModalVisible(false)}
+        onSubmit={handleLogout}
+        confirmText="Sim, sair"
+      />
     </DrawerContentScrollView>
   );
 }

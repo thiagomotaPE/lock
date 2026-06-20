@@ -1,5 +1,6 @@
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
@@ -65,6 +66,8 @@ export default function CredentialFormScreen({
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<FieldType>('Texto');
   const [folderModalVisible, setFolderModalVisible] = useState(false);
+  const [removeModalVisible, setRemoveModalVisible] = useState(false);
+  const [fieldToRemove, setFieldToRemove] = useState<string | null>(null);
 
   const confirmAddField = () => {
     if (!newFieldLabel.trim()) {
@@ -84,6 +87,20 @@ export default function CredentialFormScreen({
     setNewFieldLabel('');
     setNewFieldType('Texto');
     setAddingField(false);
+  };
+
+  const handleOpenRemoveModal = (id: string) => {
+    setFieldToRemove(id);
+    setRemoveModalVisible(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (fieldToRemove) {
+      removeField(fieldToRemove);
+    }
+
+    setRemoveModalVisible(false);
+    setFieldToRemove(null);
   };
 
   const removeField = (id: string) => {
@@ -203,9 +220,23 @@ export default function CredentialFormScreen({
                   onChangeText={(value) => updateField(field.id, 'value', value)}
                 />
 
-                <TouchableOpacity onPress={() => removeField(field.id)} style={style.removeButton}>
+                <TouchableOpacity onPress={() => handleOpenRemoveModal(field.id)} style={style.removeButton}>
                   <Text style={style.removeButtonText}>Remover</Text>
                 </TouchableOpacity>
+
+                <PrimaryModal
+                  visible={removeModalVisible}
+                  title="Quer mesmo remover este campo?"
+                  bodyType="text"
+                  text="Certifique-se de que não vai mais precisar deste campo antes de apagá-lo"
+                  confirmText="Remover"
+                  isSubmitting={false}
+                  onRequestClose={() => {
+                    setRemoveModalVisible(false);
+                    setFieldToRemove(null);
+                  }}
+                  onSubmit={handleConfirmRemove}
+                />
               </View>
             ))}
 

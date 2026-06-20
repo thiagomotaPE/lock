@@ -1,5 +1,5 @@
 import { CategoryFilterItem } from '@/components/categoryFilterItem';
-import { CreateCategoryModal } from '@/components/createCategoryModal';
+import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
@@ -98,14 +98,17 @@ export function CategoryFilter({
         </TouchableOpacity>
       </View>
 
-      <CreateCategoryModal
+      <PrimaryModal
         visible={modalVisible}
+        title='Nova categoria'
         value={categoryName}
+        bodyType="input"
         isSubmitting={isSubmitting}
         onRequestClose={() => setModalVisible(false)}
         onChangeText={setCategoryName}
         onSubmit={handleSubmit}
-        placeholder={createPlaceholder}
+        placeholder={createPlaceholder} 
+        confirmText="Criar"
       />
     </>
   );
