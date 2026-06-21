@@ -6,9 +6,9 @@ export const styles = (theme: Theme) =>
     filterRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginTop: 16,
+      marginTop: 6,
       borderBottomWidth: 0.5,
-      borderColor: theme.textColor,
+      borderColor: theme.contrastColor,
       paddingBottom: 8,
     },
     filterList: {

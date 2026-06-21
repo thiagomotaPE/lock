@@ -35,4 +35,30 @@ export const styles = (theme: Theme) =>
       color: theme.contrastColor,
       fontSize: 14,
     },
+    actions: {
+      position: 'absolute',
+      right: 10,
+      top: 8,
+      flexDirection: 'row',
+      gap: 8,
+    },
+
+    editButton: {
+      backgroundColor: theme.primaryColor,
+      paddingHorizontal: 8,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+
+    deleteButton: {
+      backgroundColor: theme.dangerColor,
+      paddingHorizontal: 8,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+
+    actionText: {
+      color: theme.textColor2,
+      fontSize: 14,
+    },
   });

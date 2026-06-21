@@ -39,8 +39,8 @@ export const styles = (theme: Theme) => StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 24,
-    bottom: 44,
+    right: 8,
+    bottom: 28,
     width: 66,
     height: 66,
     borderRadius: 38,

@@ -4,7 +4,7 @@ import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -13,6 +13,7 @@ import {
   FlatList,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -36,6 +37,8 @@ export default function CategoriesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -111,8 +114,12 @@ export default function CategoriesScreen() {
 
   const handleBack = () => {
     if (navigation.canGoBack?.()) {
-      navigation.goBack();
+      router.push('/(drawer)/vault');
     }
+  };
+
+  const handleDeleteCategory = async () => {
+    setDeleteModalVisible(false);
   };
 
   return (
@@ -120,10 +127,7 @@ export default function CategoriesScreen() {
       <Header
         title="Categorias"
         onBack={handleBack}
-        menuOptions={[
-          {label: 'Excluir', onPress: () => {}}
-        ]}
-        rightElement={<Ionicons name="ellipsis-vertical" size={24} color={theme.primaryColor} />}
+        rightElement={<FontAwesome name="lock" size={26} color={theme.primaryColor} />}
       />
 
       <ScrollView contentContainerStyle={style.scrollContent}>
@@ -136,6 +140,11 @@ export default function CategoriesScreen() {
             <Text style={style.emptyText}>{error}</Text>
           </View>
         ) : (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setSelectedCategoryId(null)}
+          style={{ flex: 1 }}
+        >
           <View style={style.container}>
             <FlatList
               data={categories}
@@ -145,7 +154,17 @@ export default function CategoriesScreen() {
                 <CategoryCard
                   categoryName={item.categoryName}
                   count={item.count}
-                  onPress={() => router.push({ pathname: '/(drawer)/vault', params: { selectedCategory: item.categoryName } })}
+                  selected={selectedCategoryId === item.id}
+                  onPress={() => {
+                    setSelectedCategoryId(null);
+                    router.push({
+                      pathname: '/(drawer)/vault',
+                      params: { selectedCategory: item.categoryName },
+                    });
+                  }}
+                  onLongPress={() => setSelectedCategoryId(item.id)}
+                  onEdit={() => setModalVisible(true)}
+                  onDelete={() => setDeleteModalVisible(true)}
                 />
               )}
             />
@@ -159,8 +178,20 @@ export default function CategoriesScreen() {
               textStyle={style.createCategoryButtonText}
             />
           </View>
+        </TouchableOpacity>
         )}
       </ScrollView>
+
+      <PrimaryModal 
+        visible={deleteModalVisible}
+        title="Deseja mesmo excluir esta categoria?"
+        bodyType="text"
+        text="Certifique-se de que não vai mais precisar desta categoria para organizar suas credenciais"
+        confirmText="Excluir"
+        isSubmitting={false}
+        onRequestClose={() => setDeleteModalVisible(false)}
+        onSubmit={handleDeleteCategory}
+      />
 
       <PrimaryModal
         visible={modalVisible}

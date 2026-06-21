@@ -14,7 +14,6 @@ export const styles = (theme: Theme) =>
     },
     scrollContent: {
       padding: 20,
-      paddingBottom: 40,
       flexDirection: 'column',
       justifyContent: 'space-between',
       height: '100%',

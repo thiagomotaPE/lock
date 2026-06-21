@@ -3,7 +3,7 @@ import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -153,10 +153,7 @@ export default function CredentialFormScreen({
       >
         <Header
           onBack={handleBack}
-          menuOptions={[
-            {label: 'Excluir', onPress: () => {}}
-          ]}
-          rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
+          rightElement={<FontAwesome name="lock" size={26} color={theme.primaryColor} />}
         />
 
         <ScrollView
@@ -286,7 +283,6 @@ export default function CredentialFormScreen({
                 <Text style={style.addFieldButtonText}>Adicionar campo</Text>
               </TouchableOpacity>
             )}
-
           </View>
           <PrimaryButton title="Salvar" onPress={() => (handleSave())} textStyle={style.saveButtonText}/>
         </ScrollView>
