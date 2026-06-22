@@ -4,7 +4,7 @@ import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
 
 type CategoryFilterProps = {
   selectedOption?: string;
@@ -27,52 +27,62 @@ export function CategoryFilter({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('http://10.0.2.2:8080/category/getAllCategories');
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        const data = await response.json();
-        setCategories(data.map((category: any) => category.categoryName));
-      } catch (fetchError) {
-        console.warn('Não foi possível carregar as categorias.', fetchError);
-        setCategories([]);
-      }
-    };
-
     fetchCategories();
   }, []);
 
-  const handleSubmit = async () => {
-    if (!categoryName.trim()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const fetchCategories = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ categoryName: categoryName.trim() }),
-      });
-
+      const response = await fetch('http://10.0.2.2:8080/category/getAllCategories');
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
+      const data = await response.json();
+      const names: string[] = data
+        .map((category: any) => category.categoryName)
+        .filter((name: string) => name !== 'Todos');
 
-      const newCategory = await response.json();
-      setCategories((prev) => [...prev, newCategory.categoryName]);
-      setCategoryName('');
-      setModalVisible(false);
-    } catch (createError) {
-      console.warn('Erro ao criar categoria', createError);
-    } finally {
-      setIsSubmitting(false);
+      const semCategoria = names.filter(n => n === 'Sem categoria');
+      const rest = names.filter(n => n !== 'Sem categoria');
+
+      setCategories([...rest, ...semCategoria]);
+    } catch (fetchError) {
+      console.warn('Não foi possível carregar as categorias.', fetchError);
+      setCategories([]);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!categoryName.trim()) {
+        Alert.alert('Atenção', 'Digite o nome da pasta.');
+        return;
+      }
+  
+      setIsSubmitting(true);
+  
+      try {
+        const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            categoryName: categoryName.trim(),
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+  
+        setCategoryName('');
+        setModalVisible(false);
+        await fetchCategories();
+        Alert.alert('Sucesso', 'Categoria criada com sucesso!');
+      } catch (err) {
+        Alert.alert('Erro', 'Não foi possível criar a categoria. Tente novamente.');
+      } finally {
+        setIsSubmitting(false);
+      }
   };
   
   return (

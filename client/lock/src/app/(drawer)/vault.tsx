@@ -66,7 +66,8 @@ export default function Vault() {
                 ? item.categoryName === selectedFilter
                 : true;
             return matchesQuery && matchesCategory;
-        }),
+        })
+        .sort((a, b) => a.credentialName.localeCompare(b.credentialName)),
         [credentials, query, selectedFilter]
     );
 

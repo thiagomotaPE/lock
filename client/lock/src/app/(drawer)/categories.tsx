@@ -39,6 +39,8 @@ export default function CategoriesScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editCategoryName, setEditCategoryName] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -50,8 +52,8 @@ export default function CategoriesScreen() {
 
     try {
       const [categoriesRes, credentialsRes] = await Promise.all([
-        fetch('http://10.0.2.2:3000/categories'),
-        fetch('http://10.0.2.2:3000/credentials'),
+        fetch('http://10.0.2.2:8080/category/getAllCategories'),
+        fetch('http://10.0.2.2:8080/credential/getAllCredentials/562e6c58-15d5-4252-8e51-fffa09364d75'),
       ]);
 
       if (!categoriesRes.ok || !credentialsRes.ok) {
@@ -65,12 +67,23 @@ export default function CategoriesScreen() {
       const categoriesWithCount = categoriesData.map((cat) => ({
         ...cat,
         count:
-          cat.categoryName === 'Tudo'
+          cat.categoryName === 'Todos'
             ? credentialsData.length
             : credentialsData.filter((cred) => cred.categoryId === cat.id).length,
       }));
 
-      setCategories(categoriesWithCount);
+      const todosCategory: CategoryWithCount = {
+        id: 'todos',
+        categoryName: 'Todos',
+        count: credentialsData.length,
+      };
+
+      const semCategoria = categoriesWithCount.filter(c => c.categoryName === 'Sem categoria');
+      const rest = categoriesWithCount
+        .filter(c => c.categoryName !== 'Sem categoria')
+        .sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+
+      setCategories([todosCategory, ...semCategoria, ...rest]);
     } catch (err) {
       setError('Não foi possível carregar as categorias.');
     } finally {
@@ -87,11 +100,9 @@ export default function CategoriesScreen() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://10.0.2.2:3000/categories', {
+      const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           categoryName: newCategoryName.trim(),
         }),
@@ -104,9 +115,9 @@ export default function CategoriesScreen() {
       setNewCategoryName('');
       setModalVisible(false);
       await fetchCategories();
-      Alert.alert('Sucesso', 'Pasta criada com sucesso!');
+      Alert.alert('Sucesso', 'Categoria criada!');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível criar a pasta. Tente novamente.');
+      Alert.alert('Erro', 'Não foi possível criar a categoria. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -118,8 +129,48 @@ export default function CategoriesScreen() {
     }
   };
 
+  const handleEditCategory = async () => {
+    try {
+      const response = await fetch(`http://10.0.2.2:8080/category/editCategory/${selectedCategoryId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ newCategoryName: editCategoryName.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      setEditModalVisible(false);
+      setSelectedCategoryId(null);
+      await fetchCategories();
+      Alert.alert('Sucesso', 'Categoria editada!');
+    } catch (err) {
+      Alert.alert('Erro', 'Não foi possível editar a categoria. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteCategory = async () => {
-    setDeleteModalVisible(false);
+    try {
+      const response = await fetch(`http://10.0.2.2:8080/category/deleteCategory/${selectedCategoryId}`, {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json'}
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      setDeleteModalVisible(false);
+      await fetchCategories();
+      Alert.alert('Sucesso', 'Categoria exluida!');
+    } catch (err) {
+      Alert.alert('Erro', 'Não foi possível excluir a categoria. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -162,35 +213,47 @@ export default function CategoriesScreen() {
                       params: { selectedCategory: item.categoryName },
                     });
                   }}
-                  onLongPress={() => setSelectedCategoryId(item.id)}
-                  onEdit={() => setModalVisible(true)}
+                  onLongPress={() => {setSelectedCategoryId(item.id); setEditCategoryName(item.categoryName)}}
+                  onEdit={() => setEditModalVisible(true)}
                   onDelete={() => setDeleteModalVisible(true)}
                 />
               )}
             />
-
-            <PrimaryButton
+          </View>
+        </TouchableOpacity>
+        )}
+      </ScrollView>
+      <PrimaryButton
               title="Criar nova categoria"
               onPress={() => setModalVisible(true)}
               iconName="plus-circle"
               iconSize={20}
               iconColor={theme.textColor2}
               textStyle={style.createCategoryButtonText}
+              buttonStyle={style.createCategoryButton}
             />
-          </View>
-        </TouchableOpacity>
-        )}
-      </ScrollView>
-
       <PrimaryModal 
         visible={deleteModalVisible}
         title="Deseja mesmo excluir esta categoria?"
         bodyType="text"
         text="Certifique-se de que não vai mais precisar desta categoria para organizar suas credenciais"
         confirmText="Excluir"
-        isSubmitting={false}
+        isSubmitting={isSubmitting}
         onRequestClose={() => setDeleteModalVisible(false)}
         onSubmit={handleDeleteCategory}
+      />
+
+      <PrimaryModal
+        visible={editModalVisible}
+        title='Editar categoria'
+        value={editCategoryName}
+        bodyType="input"
+        placeholder={"Nome da categoria"}
+        isSubmitting={isSubmitting}
+        onRequestClose={() => setEditModalVisible(false)}
+        onChangeText={setEditCategoryName}
+        onSubmit={handleEditCategory}
+        confirmText="Editar"
       />
 
       <PrimaryModal

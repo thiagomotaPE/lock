@@ -29,7 +29,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
     textAlign: 'center',
     color: theme.contrastColor,
     fontSize: 16,
-    fontFamily: typography.bold,
+    fontFamily: typography.regular,
     marginBottom: 12,
   },
   emptySubtitle: {

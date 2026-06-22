@@ -3,10 +3,10 @@ import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
-import { FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -33,7 +33,8 @@ type CredentialField = {
 type Credential = {
   id?: string;
   name: string;
-  folder: string;
+  category: string;
+  categoryId?: string;
   fields: CredentialField[];
 };
 
@@ -44,7 +45,6 @@ type CredentialFormScreenProps = {
 };
 
 const FIELD_TYPES: FieldType[] = ['Texto', 'E-mail', 'Senha', 'Numero'];
-const FOLDERS = ['Todos','Sites', 'Bancos', 'Trabalho', 'Outros'];
 
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
@@ -58,16 +58,72 @@ export default function CredentialFormScreen({
   const style = styles(theme);
 
   const [name, setName] = useState(credential?.name ?? '');
-  const [folder, setFolder] = useState(credential?.folder ?? 'Todos');
+  const [category, setCategory] = useState(credential?.category ?? 'Sem categoria');
+  const [categories, setCategories] = useState<string[]>(['Sem categoria']);
+  const params = useLocalSearchParams<{ credentialId?: string }>();
+  const isEditing = !!params.credentialId;
+  const [credentialId, setCredentialId] = useState<string | undefined>();
+  const [categoryId, setCategoryId] = useState<string | undefined>();
+
   const [fields, setFields] = useState<CredentialField[]>(
     () => credential?.fields?.map((field) => ({ ...field })) ?? []
   );
   const [addingField, setAddingField] = useState(false);
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldType, setNewFieldType] = useState<FieldType>('Texto');
-  const [folderModalVisible, setFolderModalVisible] = useState(false);
+  const [categoriesModalVisible, setCategoriesModalVisible] = useState(false);
   const [removeModalVisible, setRemoveModalVisible] = useState(false);
   const [fieldToRemove, setFieldToRemove] = useState<string | null>(null);
+  const [categoriesData, setCategoriesData] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    if (!params.credentialId) return;
+
+    const fetchCredential = async () => {
+      try {
+        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        setCredentialId(data.id);
+        setName(data.credentialName);
+        setCategory(data.categoryName);
+        setCategoryId(data.credentialCategoryId);
+        setFields(data.fields.map((f: any) => ({
+          id: f.key,
+          label: f.key,
+          type: f.type === 'PASSWORD' ? 'Senha'
+              : f.type === 'EMAIL' ? 'E-mail'
+              : f.type === 'NUMBER' ? 'Numero'
+              : 'Texto',
+          value: f.value,
+        })));
+      } catch {
+        Alert.alert('Erro', 'Não foi possível carregar a credencial.');
+      }
+    };
+
+    fetchCredential();
+  }, [params.credentialId]);
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://10.0.2.2:8080/category/getAllCategories');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const mapped = data
+          .filter((cat: any) => cat.categoryName !== 'Todos')
+          .map((cat: any) => ({ id: cat.id, name: cat.categoryName }));
+        setCategoriesData(mapped);
+        setCategories(mapped.map((c: any) => c.name));
+      } catch {
+        console.warn('Não foi possível carregar as categorias.');
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const confirmAddField = () => {
     if (!newFieldLabel.trim()) {
@@ -114,35 +170,60 @@ export default function CredentialFormScreen({
   };
 
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-      return;
-    }
-
-    if (navigation.canGoBack?.()) {
-      navigation.goBack();
-      return;
-    }
-
+    if (onBack) {onBack(); return;}
+    if (navigation.canGoBack?.()) {navigation.goBack(); return;}
     router.back();
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('Atenção', 'Dê um nome para esta credencial antes de salvar.');
       return;
     }
 
-    const savedCredential: Credential = {
-      ...credential,
-      id: credential?.id ?? makeId(),
-      name: name.trim(),
-      folder,
-      fields,
-    };
+    const mappedFields = fields.map(f => ({
+      key: f.label,
+      type: f.type === 'Senha' ? 'PASSWORD'
+          : f.type === 'E-mail' ? 'EMAIL'
+          : f.type === 'Numero' ? 'NUMBER'
+          : 'TEXT',
+      value: f.value,
+      sensitive: f.type === 'Senha',
+    }));
 
-    onSave?.(savedCredential);
-    handleBack();
+    try {
+      if (isEditing) {
+        const response = await fetch('http://10.0.2.2:8080/credential/editCredential', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: credentialId,
+            credentialName: name.trim(),
+            credentialCategoryId: categoryId,
+            fields: mappedFields,
+          }),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        Alert.alert('Sucesso', 'Credencial atualizada!');
+        router.replace({ pathname: '/credentialDetails', params: { credentialId: credentialId } });
+      } else {
+        const response = await fetch('http://10.0.2.2:8080/credential/registerNewCredential', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            credentialName: name.trim(),
+            userId: '562e6c58-15d5-4252-8e51-fffa09364d75',
+            category: category,
+            fields: mappedFields,
+          }),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        Alert.alert('Sucesso', 'Credencial criada!');
+        router.replace('/(drawer)/vault');
+      }
+    } catch (err) {
+      Alert.alert('Erro', 'Não foi possível salvar a credencial. Tente novamente.');
+    }
   };
 
   return (
@@ -173,9 +254,9 @@ export default function CredentialFormScreen({
               <Text style={style.label}>Categoria</Text>
               <TouchableOpacity
                 style={style.selectBox}
-                onPress={() => setFolderModalVisible(true)}
+                onPress={() => setCategoriesModalVisible(true)}
               >
-                <Text style={style.selectText}>{folder}</Text>
+                <Text style={style.selectText}>{category}</Text>
                 <Ionicons name="chevron-down" size={18} color={theme.primaryColor} />
               </TouchableOpacity>
             </View>
@@ -284,25 +365,34 @@ export default function CredentialFormScreen({
               </TouchableOpacity>
             )}
           </View>
-          <PrimaryButton title="Salvar" onPress={() => (handleSave())} textStyle={style.saveButtonText}/>
         </ScrollView>
+        <PrimaryButton 
+          title="Salvar" 
+          onPress={() => (handleSave())} 
+          textStyle={style.saveButtonText}
+          buttonStyle={style.saveButton}
+        />
       </KeyboardAvoidingView>
 
-      <Modal transparent visible={folderModalVisible} animationType="fade">
-        <Pressable style={style.modalOverlay} onPress={() => setFolderModalVisible(false)}>
+      <Modal transparent visible={categoriesModalVisible} animationType="fade">
+        <Pressable style={style.modalOverlay} onPress={() => setCategoriesModalVisible(false)}>
           <View style={style.modalContent}>
-            {FOLDERS.map((item) => (
-              <TouchableOpacity
-                key={item}
-                style={style.modalItem}
-                onPress={() => {
-                  setFolder(item);
-                  setFolderModalVisible(false);
-                }}
-              >
-                <Text style={style.modalItemText}>{item}</Text>
-              </TouchableOpacity>
-            ))}
+            <ScrollView>
+              {categories.map((item) => (
+                <TouchableOpacity
+                  key={item}
+                  style={style.modalItem}
+                  onPress={() => {
+                    const found = categoriesData.find(c => c.name === item);
+                    setCategory(item);
+                    setCategoryId(found?.id);
+                    setCategoriesModalVisible(false);
+                  }}
+                >
+                  <Text style={style.modalItemText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         </Pressable>
       </Modal>

@@ -50,6 +50,17 @@ export const styles = (theme: Theme) =>
       fontSize: 14,
       color: theme.contrastColor,
     },
+     createCategoryButton: {
+        backgroundColor: theme.primaryColor,
+        margin: 15,
+        height: 52,
+        borderWidth: 1,
+        borderColor: theme.primaryColor,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: "5%",
+    },
     createCategoryButtonText: {
       fontFamily: typography.bold,
       fontSize: 16,

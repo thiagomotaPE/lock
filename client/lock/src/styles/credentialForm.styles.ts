@@ -14,9 +14,7 @@ export const styles = (theme: Theme) =>
     },
     scrollContent: {
       padding: 20,
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      height: '100%',
+      flexGrow: 1
     },
     card: {
       gap: 14,
@@ -169,15 +167,24 @@ export const styles = (theme: Theme) =>
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.25)',
-      justifyContent: 'center',
+      backgroundColor: 'transparent',
+      justifyContent: 'flex-start',
       paddingHorizontal: 24,
     },
     modalContent: {
-      backgroundColor: theme.backgroundColor,
-      borderRadius: 16,
+      width: 210,
+      maxHeight: 210, 
+      backgroundColor: theme.backgroundColor2,
+      borderRadius: 6,
       paddingVertical: 8,
       overflow: 'hidden',
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOpacity: 0.15,
+      shadowOffset: { width: 0, height: 6 },
+      shadowRadius: 12,
+      alignSelf: 'flex-end',
+      marginTop: 245,
     },
     modalItem: {
       paddingHorizontal: 16,
@@ -187,6 +194,17 @@ export const styles = (theme: Theme) =>
       color: theme.textColor,
       fontFamily: typography.regular,
       fontSize: 15,
+    },
+    saveButton: {
+        backgroundColor: theme.primaryColor,
+        margin: 15,
+        height: 52,
+        borderWidth: 1,
+        borderColor: theme.primaryColor,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: "5%",
     },
     saveButtonText: {
       color: theme.textColor2,
