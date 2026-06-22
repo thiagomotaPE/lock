@@ -29,7 +29,7 @@ export function CategoryFilter({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:3000/categories');
+        const response = await fetch('http://10.0.2.2:8080/category/getAllCategories');
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
@@ -52,7 +52,7 @@ export function CategoryFilter({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://10.0.2.2:3000/categories', {
+      const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ export function CategoryFilter({
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <>
       <View style={style.filterRow}>
@@ -83,7 +83,7 @@ export function CategoryFilter({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={style.filterList}
         >
-          {categories.map((option) => (
+          {(['Todos', ...categories] as string[]) .map((option) => (
             <CategoryFilterItem
               key={option}
               label={option}

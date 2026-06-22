@@ -19,9 +19,7 @@ public class EncryptionService {
     public EncryptionService(@Value("${app.crypto.key:}") String base64Key) {
         if (base64Key == null || base64Key.isBlank()) {
             // for dev: generate a random key (NOT for production)
-            byte[] k = new byte[32];
-            new SecureRandom().nextBytes(k);
-            this.keySpec = new SecretKeySpec(k, "AES");
+            throw new IllegalStateException("app.crypto.key não configurada");
         } else {
             byte[] key = Base64.getDecoder().decode(base64Key);
             this.keySpec = new SecretKeySpec(key, "AES");
@@ -46,8 +44,10 @@ public class EncryptionService {
 
     public String decrypt(String combined) {
         try {
+            System.out.println("xerequinha de mel: " + combined);
             if (combined == null || combined.isEmpty()) return "";
             String[] parts = combined.split(":");
+            System.out.println("PARTS LENGTH: " + parts.length);
             if (parts.length != 2) return "";
             byte[] iv = Base64.getDecoder().decode(parts[0]);
             byte[] ct = Base64.getDecoder().decode(parts[1]);
@@ -57,6 +57,7 @@ public class EncryptionService {
             byte[] plain = cipher.doFinal(ct);
             return new String(plain, StandardCharsets.UTF_8);
         } catch (Exception e) {
+            System.out.println("DECRYPT FAILED FOR: " + combined);
             throw new RuntimeException(e);
         }
     }

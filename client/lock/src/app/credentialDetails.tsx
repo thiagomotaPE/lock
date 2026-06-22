@@ -28,12 +28,12 @@ type Credential = {
 
 const defaultCredential: Credential = {
   id: 'demo',
-  credentialName: 'Exemplo de conta',
-  categoryName: 'Sites',
+  credentialName: 'Not found',
+  categoryName: 'Not found',
   fields: [
-    { key: '1', label: 'Usuário', type: 'TEXT', value: 'usuario@email.com', sensitive: false },
-    { key: '2', label: 'Senha', type: 'PASSWORD', value: 'minhaSenha123', sensitive: true },
-    { key: '3', label: 'URL', type: 'TEXT', value: 'https://exemplo.com', sensitive: false },
+    { key: '1', label: 'Usuário', type: 'TEXT', value: 'Not found', sensitive: false },
+    { key: '2', label: 'Senha', type: 'PASSWORD', value: 'Not found', sensitive: true },
+    { key: '3', label: 'URL', type: 'TEXT', value: 'Not found', sensitive: false },
   ],
 };
 
@@ -60,7 +60,7 @@ export default function CredentialDetailsScreen() {
       setError(null);
 
       try {
-        const response = await fetch(`http://10.0.2.2:3000/credentials/${params.credentialId}`);
+        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
@@ -124,12 +124,12 @@ export default function CredentialDetailsScreen() {
             </View>
           </View>
 
-          {credential.fields.length === 0 ? (
+          {credential?.fields?.length === 0 ? (
             <View style={style.emptyState}>
               <Text style={style.emptyText}>Nenhum campo cadastrado.</Text>
             </View>
           ) : (
-            credential.fields.map((field) => (
+            credential?.fields?.map((field) => (
               <CredentialField
                 key={field.key ?? `${field.label}-${field.type}-${field.value}`}
                 id={field.key}

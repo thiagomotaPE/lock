@@ -2,10 +2,7 @@ package com.api.lock.credential.service;
 
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.repository.CategoryRepository;
-import com.api.lock.credential.dto.CreateCredentialDto;
-import com.api.lock.credential.dto.CredentialResponseDto;
-import com.api.lock.credential.dto.FieldResponseDto;
-import com.api.lock.credential.dto.UpdateCredentialDto;
+import com.api.lock.credential.dto.*;
 import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.entity.CredentialField;
 import com.api.lock.credential.entity.FieldType;
@@ -31,40 +28,7 @@ public class CredentialService {
         try {
             var credentials = credentialRepository.findByUserId(userId);
 
-            List<CredentialResponseDto> response = credentials.stream().map(credential -> {
-
-                List<FieldResponseDto> fields = credential.getFields().stream().map(credentialField -> {
-                    String decryptedValue = "";
-                    try {
-                        decryptedValue = encryptionService.decrypt(credentialField.getEncryptedValue());
-                    } catch (Exception ignored) {}
-
-                    return new FieldResponseDto(
-                            credentialField.getKeyName(),
-                            credentialField.getLabel(),
-                            credentialField.getFieldType().name(),
-                            decryptedValue,
-                            credentialField.isSensitive()
-                    );
-                }).toList();
-
-                String categoryId = null;
-                String categoryName = null;
-
-                if (credential.getCategory() != null) {
-                    categoryId = credential.getCategory().getId();
-                    categoryName = credential.getCategory().getCategoryName();
-                }
-
-                return new CredentialResponseDto(
-                        credential.getId(),
-                        credential.getCredentialName(),
-                        credential.getUserId(),
-                        categoryId,
-                        categoryName,
-                        fields
-                );
-            }).toList();
+            List<CredentialResponseDto> response = credentials.stream().map(this::mapToSummaryDto).toList();
 
             return ResponseEntity.ok(response);
 
@@ -74,47 +38,44 @@ public class CredentialService {
     }
 
     //Buscar apenas uma credencial
-    public ResponseEntity<List<CredentialResponseDto>> getCredentialDetailsById(String credentialId) {
+    public ResponseEntity<CredentialDetailResponseDto> getCredentialDetailsById(String credentialId) {
         try {
-            var credentialDetails = credentialRepository.findById(credentialId);
+            Credential credentialDetails = credentialRepository.findById(credentialId)
+                    .orElseThrow(() -> new RuntimeException("Credencial não encontrada"));
 
-            List<CredentialResponseDto> response = credentialDetails.stream().map(credential -> {
+            List<FieldResponseDto> fields = credentialDetails.getFields().stream().map(credentialField -> {
+                String decryptedValue = "";
+                try {
+                    decryptedValue = encryptionService.decrypt(credentialField.getEncryptedValue());
+                } catch (Exception ignored) {}
 
-                List<FieldResponseDto> fields = credential.getFields().stream().map(credentialField -> {
-                    String decryptedValue = "";
-                    try {
-                        decryptedValue = encryptionService.decrypt(credentialField.getEncryptedValue());
-                    } catch (Exception ignored) {}
-
-                    return new FieldResponseDto(
-                            credentialField.getKeyName(),
-                            credentialField.getLabel(),
-                            credentialField.getFieldType().name(),
-                            decryptedValue,
-                            credentialField.isSensitive()
-                    );
-                }).toList();
-
-                String categoryId = null;
-                String categoryName = null;
-
-                if (credential.getCategory() != null) {
-                    categoryId = credential.getCategory().getId();
-                    categoryName = credential.getCategory().getCategoryName();
-                }
-
-                return new CredentialResponseDto(
-                        credential.getId(),
-                        credential.getCredentialName(),
-                        credential.getUserId(),
-                        categoryId,
-                        categoryName,
-                        fields
+                return new FieldResponseDto(
+                        credentialField.getKeyName(),
+                        credentialField.getLabel(),
+                        credentialField.getFieldType().name(),
+                        decryptedValue,
+                        credentialField.isSensitive()
                 );
             }).toList();
 
-            return ResponseEntity.ok(response);
+            String categoryId = null;
+            String categoryName = null;
 
+            if (credentialDetails.getCategory() != null) {
+                categoryId = credentialDetails.getCategory().getId();
+                categoryName = credentialDetails.getCategory().getCategoryName();
+            }
+
+            CredentialDetailResponseDto response = new CredentialDetailResponseDto(
+                credentialDetails.getId(),
+                credentialDetails.getCredentialName(),
+                credentialDetails.getUserId(),
+                categoryId,
+                categoryName,
+                fields
+            );
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +86,7 @@ public class CredentialService {
     public ResponseEntity<List<CredentialResponseDto>> getCredentialsByUserAndCategory(String userId, String categoryId) {
 
         List<Credential> credentials = credentialRepository.findByUserIdAndCategory_Id(userId, categoryId);
-        List<CredentialResponseDto> response = credentials.stream().map(this::mapToDto).toList();
+        List<CredentialResponseDto> response = credentials.stream().map(this::mapToSummaryDto).toList();
         return ResponseEntity.ok(response);
     }
 
@@ -140,11 +101,19 @@ public class CredentialService {
             newCredential.setCreatedAt(java.time.LocalDateTime.now());
             newCredential.setUpdatedAt(java.time.LocalDateTime.now());
 
-            Category defaultCategory = categoryRepository
-                    .findByCategoryName("Sem categoria")
-                    .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada"));
+            if(createCredentialDto.category() != null){
+                Category newCategory = categoryRepository
+                        .findByCategoryName(createCredentialDto.category())
+                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                newCredential.setCategory(newCategory);
+            }else {
+                Category defaultCategory = categoryRepository
+                        .findByCategoryName("Sem categoria")
+                        .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada"));
 
-            newCredential.setCategory(defaultCategory);
+                newCredential.setCategory(defaultCategory);
+            }
+
 
             //Verificando se o usuario adicionou algum campo a credencial
             if (createCredentialDto.fields() != null) {
@@ -159,6 +128,8 @@ public class CredentialService {
                     credentialField.setLabel(fieldDto.label != null ? fieldDto.label : fieldDto.key);
                     credentialField.setSensitive(Boolean.TRUE.equals(fieldDto.sensitive));
 
+                    System.out.println("Key: " + fieldDto.key);
+                    System.out.println("Value: " + fieldDto.value);
                     if (fieldDto.value != null) {
                         String encrypted = encryptionService.encrypt(fieldDto.value);
                         credentialField.setEncryptedValue(encrypted);
@@ -236,23 +207,7 @@ public class CredentialService {
 
     }
 
-    private CredentialResponseDto mapToDto(Credential credential) {
-
-        List<FieldResponseDto> fields = credential.getFields().stream().map(f -> {
-            String value = "";
-            try {
-                value = encryptionService.decrypt(f.getEncryptedValue());
-            } catch (Exception ignored) {}
-
-            return new FieldResponseDto(
-                    f.getKeyName(),
-                    f.getLabel(),
-                    f.getFieldType().name(),
-                    value,
-                    f.isSensitive()
-            );
-        }).toList();
-
+    private CredentialResponseDto mapToSummaryDto(Credential credential) {
         String categoryId = null;
         String categoryName = null;
 
@@ -266,8 +221,7 @@ public class CredentialService {
                 credential.getCredentialName(),
                 credential.getUserId(),
                 categoryId,
-                categoryName,
-                fields
+                categoryName
         );
     }
 }

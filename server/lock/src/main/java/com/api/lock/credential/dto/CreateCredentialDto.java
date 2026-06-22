@@ -1,5 +1,6 @@
 package com.api.lock.credential.dto;
 
+import com.api.lock.category.entity.Category;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 public record CreateCredentialDto(
         @NotBlank String credentialName,
         @NotBlank String userId,
+        String category,
         List<FieldDto> fields
 ) {
     public static class FieldDto {
