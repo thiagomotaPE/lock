@@ -1,3 +1,4 @@
+import { useAuth } from "@/auth/AuthContext";
 import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
@@ -21,6 +22,7 @@ type CredentialItem = {
 };
 
 export default function Vault() {
+    const { userId, token } = useAuth();
     const { theme } = useTheme();
     const style = styles(theme);
     const navigation = useNavigation();
@@ -37,7 +39,7 @@ export default function Vault() {
         setError(null);
 
         try {
-          const response = await fetch('http://10.0.2.2:8080/credential/getAllCredentials/562e6c58-15d5-4252-8e51-fffa09364d75');
+          const response = await fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`);
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }

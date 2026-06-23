@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/AuthContext';
 import { CategoryCard } from '@/components/categoryCard';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
@@ -28,6 +29,7 @@ type CategoryWithCount = Category & {
 };
 
 export default function CategoriesScreen() {
+  const { userId } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
@@ -53,7 +55,7 @@ export default function CategoriesScreen() {
     try {
       const [categoriesRes, credentialsRes] = await Promise.all([
         fetch('http://10.0.2.2:8080/category/getAllCategories'),
-        fetch('http://10.0.2.2:8080/credential/getAllCredentials/562e6c58-15d5-4252-8e51-fffa09364d75'),
+        fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`),
       ]);
 
       if (!categoriesRes.ok || !credentialsRes.ok) {

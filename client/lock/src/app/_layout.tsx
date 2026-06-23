@@ -1,31 +1,36 @@
 import { fonts } from '@/assets/fonts/fonts';
+import { AuthProvider, useAuth } from '@/auth/AuthContext';
 import { ThemeProvider } from '@/theme/ThemeContext';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { router, SplashScreen, Stack } from 'expo-router';
 import { useEffect } from 'react';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function Layout() {
+function RootLayout() {
   const [loadedFont] = useFonts(fonts);
+  const { userId, isLoading } = useAuth();
 
   useEffect(() => {
-    if (loadedFont) {
-      SplashScreen.hideAsync();
+    if (!loadedFont || isLoading) return;
+    SplashScreen.hideAsync();
+
+    if (!userId) {
+      router.replace('/login');
     }
-  }, [loadedFont]);
+  }, [loadedFont, isLoading, userId]);
 
-  if (!loadedFont) {
-    return null;
-  }
+  if (!loadedFont || isLoading) return null;
 
+  return <Stack screenOptions={{ headerShown: false }} />;
+}
+
+export default function Layout() {
   return (
     <ThemeProvider>
-      <Stack  
-        screenOptions={{
-          headerShown: false
-        }}
-      />
+      <AuthProvider>
+        <RootLayout />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

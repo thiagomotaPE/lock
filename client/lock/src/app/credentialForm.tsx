@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/AuthContext';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
@@ -53,6 +54,7 @@ export default function CredentialFormScreen({
   onBack,
   onSave,
 }: CredentialFormScreenProps) {
+  const { userId } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
@@ -212,7 +214,7 @@ export default function CredentialFormScreen({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             credentialName: name.trim(),
-            userId: '562e6c58-15d5-4252-8e51-fffa09364d75',
+            userId: userId,
             category: category,
             fields: mappedFields,
           }),

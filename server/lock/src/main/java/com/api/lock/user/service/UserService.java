@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
@@ -51,9 +52,11 @@ public class UserService {
     public ResponseEntity loginUser(LoginUserDto loginUserDto) {
         var emailPassword = new UsernamePasswordAuthenticationToken(loginUserDto.email(), loginUserDto.password());
         var auth = authenticationManager.authenticate(emailPassword);
-        var token = tokenService.generateToken((User) auth.getPrincipal());
+        var user = (User) auth.getPrincipal();
+        var token = tokenService.generateToken((User) Objects.requireNonNull(auth.getPrincipal()));
 
-        return ResponseEntity.ok(new LoginResponseDto(token));
+        assert user != null;
+        return ResponseEntity.ok(new LoginResponseDto(user.getId(), token, user.getUsername(), user.getEmail()));
     }
 
     //Verifica se a senha nova tem o padrão necessario
