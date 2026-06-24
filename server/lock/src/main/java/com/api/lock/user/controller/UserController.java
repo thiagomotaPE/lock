@@ -2,7 +2,7 @@ package com.api.lock.user.controller;
 
 import com.api.lock.user.Dto.CreateUserDto;
 import com.api.lock.user.Dto.LoginUserDto;
-import com.api.lock.user.entity.User;
+import com.api.lock.user.Dto.UserResponseDto;
 import com.api.lock.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +18,12 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/getAllUsers")
-    public ResponseEntity<List<User>> getUsers() {
+    public ResponseEntity<List<UserResponseDto>> getUsers() {
         return userService.getAllUsers();
     }
 
     @PostMapping("/registerNewUser")
-    public ResponseEntity<List<User>> registerUser(@RequestBody @Valid CreateUserDto createUserDto) {
+    public ResponseEntity<Object> registerUser(@RequestBody @Valid CreateUserDto createUserDto) {
         return userService.registerNewUser(createUserDto);
     }
 
