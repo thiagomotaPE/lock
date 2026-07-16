@@ -66,7 +66,7 @@ export const styles = (theme: Theme) => StyleSheet.create({
     line: {
         flex: 1,
         height: 1,
-        backgroundColor: theme.primaryColor
+        backgroundColor: theme.primaryColor,
     },
 
     or: {

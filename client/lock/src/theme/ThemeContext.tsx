@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { dark } from './dark';
 import { light } from './light';
@@ -12,10 +13,19 @@ type ThemeContextData = {
 };
 
 const ThemeContext = createContext<ThemeContextData>({} as ThemeContextData);
+const THEME_KEY = 'user_theme';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
   const [manualTheme, setManualTheme] = useState<'light' | 'dark' | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(THEME_KEY).then((saved) => {
+      if (saved === 'light' || saved === 'dark') {
+        setManualTheme(saved);
+      }
+    });
+  }, []);
 
   const isDark =
     manualTheme === 'dark' ||
@@ -24,7 +34,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme = useMemo(() => (isDark ? dark : light), [isDark]);
 
   function toggleTheme() {
-    setManualTheme(isDark ? 'light' : 'dark');
+    const next = isDark ? 'light' : 'dark';
+    setManualTheme(next);
+    AsyncStorage.setItem(THEME_KEY, next);
   }
 
   return (

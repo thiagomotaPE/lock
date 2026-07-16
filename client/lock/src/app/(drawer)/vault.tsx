@@ -1,3 +1,4 @@
+import { useAuth } from "@/auth/AuthContext";
 import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
@@ -13,14 +14,15 @@ import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type CredentialItem = {
-  id: string | number;
-  userId?: string | number;
-  credentialName?: string;
-  categoryName?: string;
-  [key: string]: any;
+  id: string;
+  credentialName: string;
+  userId: string;
+  categoryId: string;
+  categoryName: string;
 };
 
 export default function Vault() {
+    const { userId, token } = useAuth();
     const { theme } = useTheme();
     const style = styles(theme);
     const navigation = useNavigation();
@@ -29,7 +31,7 @@ export default function Vault() {
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedFilter, setSelectedFilter] = useState(params.selectedCategory ?? 'Tudo');
+    const [selectedFilter, setSelectedFilter] = useState(params.selectedCategory ?? 'Todos');
 
     useEffect(() => {
       const loadCredentials = async () => {
@@ -37,7 +39,10 @@ export default function Vault() {
         setError(null);
 
         try {
-          const response = await fetch('http://10.0.2.2:3000/credentials');
+          const response = await fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`,}
+          });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
@@ -45,7 +50,7 @@ export default function Vault() {
           const data = await response.json();
           setCredentials(data);
         } catch (fetchError) {
-          setError('Não foi possível carregar as credenciais. Verifique se o json-server está rodando.');
+          setError('Não foi possível carregar as credenciais. Verifique se o servidor está rodando.');
         } finally {
           setIsLoading(false);
         }
@@ -62,11 +67,12 @@ export default function Vault() {
         () => credentials.filter((item) => {
             const title = (item.credentialName || '').toString().toLowerCase();
             const matchesQuery = title.includes(query.toLowerCase());
-            const matchesCategory = selectedFilter && selectedFilter !== 'Tudo'
+            const matchesCategory = selectedFilter && selectedFilter !== 'Todos'
                 ? item.categoryName === selectedFilter
                 : true;
             return matchesQuery && matchesCategory;
-        }),
+        })
+        .sort((a, b) => a.credentialName.localeCompare(b.credentialName)),
         [credentials, query, selectedFilter]
     );
 
@@ -115,7 +121,7 @@ export default function Vault() {
                     <IsEmpty />
                 )}
 
-                <TouchableOpacity style={style.fab} onPress={() => router.push('/(drawer)/credentialForm')}>
+                <TouchableOpacity style={style.fab} onPress={() => router.push('/credentialForm')}>
                     <FontAwesome name="plus" size={28} color={theme.textColor2} />
                 </TouchableOpacity>
             </View>

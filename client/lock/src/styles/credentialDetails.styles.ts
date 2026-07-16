@@ -14,9 +14,6 @@ export const styles = (theme: Theme) =>
     scrollContent: {
       padding: 20,
       paddingBottom: 40,
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      height: '100%',
     },
     card: {
       gap: 14,
@@ -72,6 +69,17 @@ export const styles = (theme: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
+    },
+    editPrimaryButton: {
+        backgroundColor: theme.primaryColor,
+        margin: 15,
+        height: 52,
+        borderWidth: 1,
+        borderColor: theme.primaryColor,
+        borderRadius: 14,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: "5%",
     },
     editButtonText: {
       color: theme.textColor2,

@@ -48,6 +48,14 @@ export const styles = (theme: Theme) =>
       backgroundColor: theme.backgroundColor2,
       marginBottom: 12,
     },
+    modalText: {
+      fontFamily: typography.regular,
+      fontSize: 14,
+      textAlign: 'center',
+      marginHorizontal: 12,
+      marginBottom: 12,
+      color: theme.contrastColor,
+    },
     modalButtons: {
       flexDirection: 'row',
       gap: 12,

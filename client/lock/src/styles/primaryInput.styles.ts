@@ -13,14 +13,13 @@ export const styles = (theme: Theme) => StyleSheet.create({
         paddingHorizontal: 12,
         marginBottom: 12,
     },
-
     inputSelected: {
         borderColor: theme.primaryColor
     },
-
     input: {
         flex: 1,
         height: 48,
-        fontFamily: typography.regular
+        fontFamily: typography.regular,
+        color: theme.textColor
     }
 })

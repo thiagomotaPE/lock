@@ -1,5 +1,7 @@
 package com.api.lock.user.entity;
 
+import com.api.lock.category.entity.Category;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -35,6 +37,10 @@ public class User implements UserDetails {
 
     @NotNull
     private UserRole role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Category> categories;
 
     public User(@Valid String username, @Valid String email, @Valid String password) {
         this.username = username;

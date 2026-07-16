@@ -1,13 +1,15 @@
+import { useAuth } from '@/auth/AuthContext';
 import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
+import { PrimaryModal } from '@/components/primaryModal';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type CredentialField = {
@@ -27,17 +29,18 @@ type Credential = {
 
 const defaultCredential: Credential = {
   id: 'demo',
-  credentialName: 'Exemplo de conta',
-  categoryName: 'Sites',
+  credentialName: 'Not found',
+  categoryName: 'Not found',
   fields: [
-    { key: '1', label: 'Usuário', type: 'TEXT', value: 'usuario@email.com', sensitive: false },
-    { key: '2', label: 'Senha', type: 'PASSWORD', value: 'minhaSenha123', sensitive: true },
-    { key: '3', label: 'URL', type: 'TEXT', value: 'https://exemplo.com', sensitive: false },
+    { key: '1', label: 'Usuário', type: 'TEXT', value: 'Not found', sensitive: false },
+    { key: '2', label: 'Senha', type: 'PASSWORD', value: 'Not found', sensitive: true },
+    { key: '3', label: 'URL', type: 'TEXT', value: 'Not found', sensitive: false },
   ],
 };
 
 export default function CredentialDetailsScreen() {
   const { theme } = useTheme();
+  const { token } = useAuth();
   const navigation = useNavigation();
   const style = styles(theme);
   const params = useLocalSearchParams<{ credentialId?: string }>();
@@ -45,6 +48,7 @@ export default function CredentialDetailsScreen() {
   const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCredential = async () => {
@@ -58,7 +62,10 @@ export default function CredentialDetailsScreen() {
       setError(null);
 
       try {
-        const response = await fetch(`http://10.0.2.2:3000/credentials/${params.credentialId}`);
+        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
@@ -90,12 +97,30 @@ export default function CredentialDetailsScreen() {
     setRevealedFields((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleDeleteCredential = async () => {
+    setDeleteModalVisible(false);
+
+    try {
+      const response = await fetch(`http://10.0.2.2:8080/credential/deleteCredential/${params.credentialId}`, {
+        method: 'DELETE',
+        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+      });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      Alert.alert('Sucesso', 'Credencial excluida!');
+      router.replace('/(drawer)/vault');
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível excluir a credencial. Tente novamente.');
+    }
+  };
+
   return (
     <SafeAreaView style={style.safeArea}>
       <Header
         onBack={handleBack}
         menuOptions={[
-          {label: 'Excluir', onPress: () => {}},
+          {label: 'Excluir', onPress: () => setDeleteModalVisible(true)},
         ]}
         rightElement={<FontAwesome5 name="ellipsis-v" size={26} color={theme.primaryColor} />}
       />
@@ -112,12 +137,12 @@ export default function CredentialDetailsScreen() {
             </View>
           </View>
 
-          {credential.fields.length === 0 ? (
+          {credential?.fields?.length === 0 ? (
             <View style={style.emptyState}>
               <Text style={style.emptyText}>Nenhum campo cadastrado.</Text>
             </View>
           ) : (
-            credential.fields.map((field) => (
+            credential?.fields?.map((field) => (
               <CredentialField
                 key={field.key ?? `${field.label}-${field.type}-${field.value}`}
                 id={field.key}
@@ -131,8 +156,27 @@ export default function CredentialDetailsScreen() {
             ))
           )}
         </View>
-        <PrimaryButton title="Editar" onPress={() => router.push('/(drawer)/credentialForm')} textStyle={style.editButtonText}/>
       </ScrollView>
+      <PrimaryButton 
+        title="Editar" 
+        onPress={() => router.replace({ 
+          pathname: '/credentialForm', 
+          params: { credentialId: params.credentialId } }
+        )}
+        textStyle={style.editButtonText}
+        buttonStyle={style.editPrimaryButton}
+      />
+
+      <PrimaryModal
+        visible={deleteModalVisible}
+        title="Deseja mesmo excluir a credencial?"
+        bodyType="text"
+        text="Certifique-se de que não vai mais precisar desta credencial antes de apagá-la"
+        confirmText="Excluir"
+        isSubmitting={false}
+        onRequestClose={() => setDeleteModalVisible(false)}
+        onSubmit={handleDeleteCredential}
+      />
     </SafeAreaView>
   );
 }

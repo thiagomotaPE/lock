@@ -1,5 +1,6 @@
 package com.api.lock.category.controller;
 
+import com.api.lock.category.dto.CategoryResponseDto;
 import com.api.lock.category.dto.CreateCategoryDto;
 import com.api.lock.category.dto.UpdateCategoryDto;
 import com.api.lock.category.entity.Category;
@@ -20,9 +21,9 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/getAllCategories")
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return categoryService.getAllCategories();
+    @GetMapping("/getAllCategories/{userId}")
+    public ResponseEntity<List<CategoryResponseDto>> getAllCategories(@PathVariable String userId) {
+        return categoryService.getAllCategories(userId);
     }
 
     @PostMapping("/registerNewCategory")

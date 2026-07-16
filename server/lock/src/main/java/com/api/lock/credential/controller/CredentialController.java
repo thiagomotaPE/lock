@@ -1,6 +1,7 @@
 package com.api.lock.credential.controller;
 
 import com.api.lock.credential.dto.CreateCredentialDto;
+import com.api.lock.credential.dto.CredentialDetailResponseDto;
 import com.api.lock.credential.dto.CredentialResponseDto;
 import com.api.lock.credential.dto.UpdateCredentialDto;
 import com.api.lock.credential.entity.Credential;
@@ -26,7 +27,7 @@ public class CredentialController {
     }
 
     @GetMapping("/getCredentialDetails/{credentialId}")
-    public ResponseEntity<List<CredentialResponseDto>> getCredentialDetails(@PathVariable String credentialId) {
+    public ResponseEntity<CredentialDetailResponseDto> getCredentialDetails(@PathVariable String credentialId) {
         return credentialService.getCredentialDetailsById(credentialId);
     }
 

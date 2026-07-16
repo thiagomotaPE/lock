@@ -1,26 +1,37 @@
-import { styles } from '@/styles/createCategoryModal.styles';
+import { styles } from '@/styles/primaryModal.styles';
 import { useTheme } from '@/theme/useTheme';
+import { ReactNode } from 'react';
 import { Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-type CreateCategoryModalProps = {
+type PrimaryModalProps = {
   visible: boolean;
-  value: string;
+  title?: string;
+  value?: string;
+  text?: string;
   isSubmitting: boolean;
   onRequestClose: () => void;
-  onChangeText: (text: string) => void;
+  onChangeText?: (text: string) => void;
   onSubmit: () => void;
   placeholder?: string;
+  bodyType?: 'input' | 'text';
+  children?: ReactNode;
+  confirmText: string;
 };
 
-export function CreateCategoryModal({
+export function PrimaryModal({
   visible,
+  title,
   value,
+  text,
   isSubmitting,
   onRequestClose,
   onChangeText,
   onSubmit,
-  placeholder = 'Nome da categoria',
-}: CreateCategoryModalProps) {
+  placeholder,
+  bodyType,
+  children,
+  confirmText,
+}: PrimaryModalProps) {
   const { theme } = useTheme();
   const style = styles(theme);
 
@@ -29,15 +40,23 @@ export function CreateCategoryModal({
       <View style={style.modalOverlay}>
         <Pressable style={style.overlayBackground} onPress={() => !isSubmitting && onRequestClose()} />
         <View style={style.modalContent}>
-          <Text style={style.modalTitle}>Nova categoria</Text>
-          <TextInput
-            style={style.modalInput}
-            placeholder={placeholder}
-            placeholderTextColor={theme.contrastColor}
-            value={value}
-            onChangeText={onChangeText}
-            editable={!isSubmitting}
-          />
+          <Text style={style.modalTitle}>{title}</Text>
+
+          {children ? (
+            children
+          ) : bodyType === 'input' ? (
+            <TextInput
+              style={style.modalInput}
+              placeholder={placeholder}
+              placeholderTextColor={theme.contrastColor}
+              value={value}
+              onChangeText={onChangeText}
+              editable={!isSubmitting}
+            />
+           ) : (
+            <Text style={style.modalText}>{text}</Text>
+          )}
+          
           <View style={style.modalButtons}>
             <TouchableOpacity
               style={[style.button, style.cancelButton]}
@@ -52,7 +71,7 @@ export function CreateCategoryModal({
               disabled={isSubmitting}
             >
               <Text style={style.createButtonText}>
-                {isSubmitting ? 'Criando...' : 'Criar'}
+                {isSubmitting ? confirmText : confirmText}
               </Text>
             </TouchableOpacity>
           </View>
