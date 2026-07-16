@@ -44,7 +44,6 @@ public class EncryptionService {
 
     public String decrypt(String combined) {
         try {
-            System.out.println("xerequinha de mel: " + combined);
             if (combined == null || combined.isEmpty()) return "";
             String[] parts = combined.split(":");
             System.out.println("PARTS LENGTH: " + parts.length);
