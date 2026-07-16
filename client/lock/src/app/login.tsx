@@ -7,17 +7,23 @@ import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Login() {
-  const { signIn } = useAuth();
+  const { signIn, userId, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { theme } = useTheme();
   const style = styles(theme);
+
+  useEffect(() => {
+    if (!isLoading && userId) {
+      router.replace('/(drawer)/vault');
+    }
+  }, [isLoading, router, userId]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -43,7 +49,6 @@ export default function Login() {
       router.replace('/(drawer)/vault');
     } catch {
       Alert.alert('Erro', 'E-mail ou senha inválidos.');
-    } finally {
     }
   };
 

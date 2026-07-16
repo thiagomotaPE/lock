@@ -54,7 +54,7 @@ export default function CredentialFormScreen({
   onBack,
   onSave,
 }: CredentialFormScreenProps) {
-  const { userId } = useAuth();
+  const { userId, token } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
@@ -83,7 +83,10 @@ export default function CredentialFormScreen({
 
     const fetchCredential = async () => {
       try {
-        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`);
+        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
 
@@ -112,7 +115,10 @@ export default function CredentialFormScreen({
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://10.0.2.2:8080/category/getAllCategories');
+        const response = await fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         const mapped = data
@@ -197,7 +203,7 @@ export default function CredentialFormScreen({
       if (isEditing) {
         const response = await fetch('http://10.0.2.2:8080/credential/editCredential', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
           body: JSON.stringify({
             id: credentialId,
             credentialName: name.trim(),
@@ -211,7 +217,7 @@ export default function CredentialFormScreen({
       } else {
         const response = await fetch('http://10.0.2.2:8080/credential/registerNewCredential', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
           body: JSON.stringify({
             credentialName: name.trim(),
             userId: userId,

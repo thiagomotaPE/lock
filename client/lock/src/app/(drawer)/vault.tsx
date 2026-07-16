@@ -39,7 +39,10 @@ export default function Vault() {
         setError(null);
 
         try {
-          const response = await fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`);
+          const response = await fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`,}
+          });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }

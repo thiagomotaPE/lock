@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/AuthContext';
 import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
@@ -39,6 +40,7 @@ const defaultCredential: Credential = {
 
 export default function CredentialDetailsScreen() {
   const { theme } = useTheme();
+  const { token } = useAuth();
   const navigation = useNavigation();
   const style = styles(theme);
   const params = useLocalSearchParams<{ credentialId?: string }>();
@@ -60,7 +62,10 @@ export default function CredentialDetailsScreen() {
       setError(null);
 
       try {
-        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`);
+        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
@@ -98,6 +103,7 @@ export default function CredentialDetailsScreen() {
     try {
       const response = await fetch(`http://10.0.2.2:8080/credential/deleteCredential/${params.credentialId}`, {
         method: 'DELETE',
+        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
       });
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

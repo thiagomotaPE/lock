@@ -29,7 +29,7 @@ type CategoryWithCount = Category & {
 };
 
 export default function CategoriesScreen() {
-  const { userId } = useAuth();
+  const { userId, token } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
@@ -54,8 +54,14 @@ export default function CategoriesScreen() {
 
     try {
       const [categoriesRes, credentialsRes] = await Promise.all([
-        fetch('http://10.0.2.2:8080/category/getAllCategories'),
-        fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`),
+        fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        }),
+        fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`, {
+          method: 'GET',
+          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        }),
       ]);
 
       if (!categoriesRes.ok || !credentialsRes.ok) {
@@ -104,9 +110,10 @@ export default function CategoriesScreen() {
     try {
       const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
         body: JSON.stringify({
           categoryName: newCategoryName.trim(),
+          userId: userId
         }),
       });
 
@@ -127,7 +134,7 @@ export default function CategoriesScreen() {
 
   const handleBack = () => {
     if (navigation.canGoBack?.()) {
-      router.push('/(drawer)/vault');
+      router.replace('/(drawer)/vault');
     }
   };
 
@@ -135,7 +142,7 @@ export default function CategoriesScreen() {
     try {
       const response = await fetch(`http://10.0.2.2:8080/category/editCategory/${selectedCategoryId}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
         body: JSON.stringify({ newCategoryName: editCategoryName.trim() }),
       });
 
@@ -158,7 +165,7 @@ export default function CategoriesScreen() {
     try {
       const response = await fetch(`http://10.0.2.2:8080/category/deleteCategory/${selectedCategoryId}`, {
         method: 'DELETE',
-        headers: {'Content-Type': 'application/json'}
+        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
       });
 
       if (!response.ok) {
@@ -169,7 +176,7 @@ export default function CategoriesScreen() {
       await fetchCategories();
       Alert.alert('Sucesso', 'Categoria exluida!');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível excluir a categoria. Tente novamente.');
+      Alert.alert('Erro', 'Não foi possível excluir a categoria. certifique-se de remover as suas credenciais desta categoria e tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
