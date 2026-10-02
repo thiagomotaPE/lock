@@ -6,6 +6,7 @@ type AuthContextData = {
   token: string | null;
   isLoading: boolean;
   hasStoredSession: boolean;
+  sessionId: number;
   signIn: (userId: string, token: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -17,6 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasStoredSession, setHasStoredSession] = useState(false);
+  const [sessionId, setSessionId] = useState(0);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -41,15 +43,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadSession();
   }, []);
 
-  async function signIn(userId: string, token: string) {
+  async function signIn(nextUserId: string, nextToken: string) {
     await AsyncStorage.multiSet([
-      ['user_id', userId],
-      ['user_token', token],
+      ['user_id', nextUserId],
+      ['user_token', nextToken],
     ]);
 
-    setUserId(userId);
-    setToken(token);
+    setUserId(nextUserId);
+    setToken(nextToken);
     setHasStoredSession(true);
+    setSessionId((current) => current + 1);
     setIsLoading(false);
   }
 
@@ -58,11 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserId(null);
     setToken(null);
     setHasStoredSession(false);
+    setSessionId((current) => current + 1);
     setIsLoading(false);
   }
 
   return (
-    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, signIn, signOut }}>
+    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, sessionId, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

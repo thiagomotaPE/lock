@@ -2,6 +2,7 @@ import LogoShadow from '@/assets/images/logo-shadow.png';
 import { useAuth } from '@/auth/AuthContext';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryInput } from '@/components/primaryInput';
+import { apiRequest } from '@/services/api';
 import { styles } from '@/styles/login.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -32,15 +33,14 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch('http://10.0.2.2:8080/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await apiRequest<{ userId: string; token: string; username: string; email: string }>(
+        '/user/login',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        },
+      );
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data = await response.json();
       await signIn(data.userId, data.token);
       await AsyncStorage.multiSet([
         ['user_name', data.username],

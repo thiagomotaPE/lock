@@ -3,12 +3,13 @@ import { CategoryCard } from '@/components/categoryCard';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
+import { apiRequest } from '@/services/api';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -29,10 +30,11 @@ type CategoryWithCount = Category & {
 };
 
 export default function CategoriesScreen() {
-  const { userId, token } = useAuth();
+  const { userId, token, sessionId } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
+  const sessionRef = useRef(sessionId);
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +45,10 @@ export default function CategoriesScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editCategoryName, setEditCategoryName] = useState('');
+
+  useEffect(() => {
+    sessionRef.current = sessionId;
+  }, [sessionId]);
 
   useEffect(() => {
     if (!userId || !token) {
@@ -63,37 +69,26 @@ export default function CategoriesScreen() {
       return;
     }
 
+    const activeSessionId = sessionRef.current;
     setIsLoading(true);
     setError(null);
 
     try {
-      const [categoriesRes, credentialsRes] = await Promise.all([
-        fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
+      const [categoriesData, credentialsData] = await Promise.all([
+        apiRequest<Category[]>(`/category/getAllCategories/${userId}`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+          token,
         }),
-        fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`, {
+        apiRequest<any[]>(`/credential/getAllCredentials/${userId}`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+          token,
         }),
       ]);
 
-      if (!categoriesRes.ok || !credentialsRes.ok) {
-        throw new Error('Failed to fetch data');
-      }
-
-      if (!userId || !token) {
+      if (sessionRef.current !== activeSessionId) {
         return;
       }
 
-      const categoriesData: Category[] = await categoriesRes.json();
-      const credentialsData: any[] = await credentialsRes.json();
-
-      if (!userId || !token) {
-        return;
-      }
-
-      // Contar credenciais por categoria
       const categoriesWithCount = categoriesData.map((cat) => ({
         ...cat,
         count:
@@ -115,40 +110,39 @@ export default function CategoriesScreen() {
 
       setCategories([todosCategory, ...semCategoria, ...rest]);
     } catch (err) {
-      if (!userId || !token) {
+      if (sessionRef.current !== activeSessionId) {
         return;
       }
 
       setError('Não foi possível carregar as categorias.');
     } finally {
-      if (!userId || !token) {
-        return;
+      if (sessionRef.current === activeSessionId) {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     }
   };
 
   const handleAddCategory = async () => {
-    if (!newCategoryName.trim()) {
+    if (!newCategoryName.trim() || !userId || !token) {
       Alert.alert('Atenção', 'Digite o nome da pasta.');
       return;
     }
 
+    const activeSessionId = sessionRef.current;
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
+      await apiRequest('/category/registerNewCategory', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
+        token,
         body: JSON.stringify({
           categoryName: newCategoryName.trim(),
-          userId: userId
+          userId,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (sessionRef.current !== activeSessionId) {
+        return;
       }
 
       setNewCategoryName('');
@@ -158,7 +152,9 @@ export default function CategoriesScreen() {
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível criar a categoria. Tente novamente.');
     } finally {
-      setIsSubmitting(false);
+      if (sessionRef.current === activeSessionId) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -169,15 +165,21 @@ export default function CategoriesScreen() {
   };
 
   const handleEditCategory = async () => {
+    if (!selectedCategoryId || !userId || !token) {
+      return;
+    }
+
+    const activeSessionId = sessionRef.current;
+
     try {
-      const response = await fetch(`http://10.0.2.2:8080/category/editCategory/${selectedCategoryId}`, {
+      await apiRequest(`/category/editCategory/${selectedCategoryId}`, {
         method: 'PUT',
-        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
+        token,
         body: JSON.stringify({ newCategoryName: editCategoryName.trim() }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (sessionRef.current !== activeSessionId) {
+        return;
       }
 
       setEditModalVisible(false);
@@ -187,19 +189,27 @@ export default function CategoriesScreen() {
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível editar a categoria. Tente novamente.');
     } finally {
-      setIsSubmitting(false);
+      if (sessionRef.current === activeSessionId) {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleDeleteCategory = async () => {
+    if (!selectedCategoryId || !userId || !token) {
+      return;
+    }
+
+    const activeSessionId = sessionRef.current;
+
     try {
-      const response = await fetch(`http://10.0.2.2:8080/category/deleteCategory/${selectedCategoryId}`, {
+      await apiRequest(`/category/deleteCategory/${selectedCategoryId}`, {
         method: 'DELETE',
-        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        token,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (sessionRef.current !== activeSessionId) {
+        return;
       }
 
       setDeleteModalVisible(false);
@@ -208,7 +218,9 @@ export default function CategoriesScreen() {
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível excluir a categoria. certifique-se de remover as suas credenciais desta categoria e tente novamente.');
     } finally {
-      setIsSubmitting(false);
+      if (sessionRef.current === activeSessionId) {
+        setIsSubmitting(false);
+      }
     }
   };
 

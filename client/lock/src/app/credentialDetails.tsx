@@ -3,12 +3,13 @@ import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
+import { apiRequest } from '@/services/api';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -36,15 +37,20 @@ const defaultCredential: Credential = {
 
 export default function CredentialDetailsScreen() {
   const { theme } = useTheme();
-  const { token } = useAuth();
+  const { token, sessionId } = useAuth();
   const navigation = useNavigation();
   const style = styles(theme);
   const params = useLocalSearchParams<{ credentialId?: string }>();
+  const sessionRef = useRef(sessionId);
   const [credential, setCredential] = useState<Credential>(defaultCredential);
   const [revealedFields, setRevealedFields] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  useEffect(() => {
+    sessionRef.current = sessionId;
+  }, [sessionId]);
 
   useEffect(() => {
     const fetchCredential = async () => {
@@ -54,31 +60,44 @@ export default function CredentialDetailsScreen() {
         return;
       }
 
+      if (!token) {
+        setCredential(defaultCredential);
+        setError('Sessão expirada.');
+        setIsLoading(false);
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
+        const data = await apiRequest<Credential>(`/credential/getCredentialDetails/${params.credentialId}`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+          token,
         });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
         }
 
-        const data = await response.json();
         setCredential(data);
       } catch (fetchError) {
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
         console.warn('Erro ao carregar credencial:', fetchError);
         setError('Não foi possível carregar a credencial.');
         setCredential(defaultCredential);
       } finally {
-        setIsLoading(false);
+        if (sessionRef.current === activeSessionId) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchCredential();
-  }, [params.credentialId]);
+  }, [params.credentialId, token]);
 
   const handleBack = () => {
     if (navigation.canGoBack?.()) {
@@ -97,12 +116,19 @@ export default function CredentialDetailsScreen() {
     setDeleteModalVisible(false);
 
     try {
-      const response = await fetch(`http://10.0.2.2:8080/credential/deleteCredential/${params.credentialId}`, {
+      if (!params.credentialId || !token) {
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
+      await apiRequest(`/credential/deleteCredential/${params.credentialId}`, {
         method: 'DELETE',
-        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        token,
       });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (sessionRef.current !== activeSessionId) {
+        return;
+      }
 
       Alert.alert('Sucesso', 'Credencial excluida!');
       router.replace('/(drawer)/vault');

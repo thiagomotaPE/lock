@@ -1,11 +1,12 @@
 import { useAuth } from '@/auth/AuthContext';
 import { CategoryFilterItem } from '@/components/categoryFilterItem';
 import { PrimaryModal } from '@/components/primaryModal';
+import { apiRequest } from '@/services/api';
 import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
 
 type CategoryFilterProps = {
@@ -23,22 +24,31 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const { theme } = useTheme();
   const style = styles(theme);
-  const { userId, token } = useAuth();
+  const { userId, token, sessionId } = useAuth();
+  const sessionRef = useRef(sessionId);
   const [categories, setCategories] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchCategories = useCallback(async () => {
+    if (!userId || !token) {
+      setCategories([]);
+      return;
+    }
+
+    const activeSessionId = sessionRef.current;
+
     try {
-      const response = await fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
+      const data = await apiRequest<any[]>(`/category/getAllCategories/${userId}`, {
         method: 'GET',
-        headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+        token,
       });
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+
+      if (sessionRef.current !== activeSessionId) {
+        return;
       }
-      const data = await response.json();
+
       const names: string[] = data
         .map((category: any) => category.categoryName)
         .filter((name: string) => name !== 'Todos');
@@ -48,15 +58,19 @@ export function CategoryFilter({
 
       setCategories([...rest, ...semCategoria]);
     } catch (fetchError) {
+      if (sessionRef.current !== activeSessionId) {
+        return;
+      }
       console.warn('Não foi possível carregar as categorias.', fetchError);
       setCategories([]);
     }
-  }, [userId, token]);
+  }, [userId, token, sessionId]);
 
   useFocusEffect(
     useCallback(() => {
+      sessionRef.current = sessionId;
       fetchCategories();
-    }, [userId, token])
+    }, [fetchCategories, sessionId])
   );
 
   const handleSubmit = async () => {
@@ -68,18 +82,18 @@ export function CategoryFilter({
       setIsSubmitting(true);
   
       try {
-        const response = await fetch('http://10.0.2.2:8080/category/registerNewCategory', {
+        if (!userId || !token) {
+          return;
+        }
+
+        await apiRequest('/category/registerNewCategory', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
+          token,
           body: JSON.stringify({
             categoryName: categoryName.trim(),
-            userId: userId
+            userId,
           }),
         });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
   
         setCategoryName('');
         setModalVisible(false);

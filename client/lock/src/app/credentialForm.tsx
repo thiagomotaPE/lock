@@ -2,12 +2,13 @@ import { useAuth } from '@/auth/AuthContext';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
+import { apiRequest } from '@/services/api';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -54,10 +55,11 @@ export default function CredentialFormScreen({
   onBack,
   onSave,
 }: CredentialFormScreenProps) {
-  const { userId, token } = useAuth();
+  const { userId, token, sessionId } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
+  const sessionRef = useRef(sessionId);
 
   const [name, setName] = useState(credential?.name ?? '');
   const [category, setCategory] = useState(credential?.category ?? 'Sem categoria');
@@ -79,16 +81,28 @@ export default function CredentialFormScreen({
   const [categoriesData, setCategoriesData] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
+    sessionRef.current = sessionId;
+  }, [sessionId]);
+
+  useEffect(() => {
     if (!params.credentialId) return;
 
     const fetchCredential = async () => {
+      if (!token) {
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
+
       try {
-        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
+        const data = await apiRequest<any>(`/credential/getCredentialDetails/${params.credentialId}`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+          token,
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
 
         setCredentialId(data.id);
         setName(data.credentialName);
@@ -104,34 +118,50 @@ export default function CredentialFormScreen({
           value: f.value,
         })));
       } catch {
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
         Alert.alert('Erro', 'Não foi possível carregar a credencial.');
       }
     };
 
     fetchCredential();
-  }, [params.credentialId]);
+  }, [params.credentialId, token]);
 
 
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!userId || !token) {
+        setCategoriesData([]);
+        setCategories(['Sem categoria']);
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
+
       try {
-        const response = await fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
+        const data = await apiRequest<any[]>(`/category/getAllCategories/${userId}`, {
           method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
+          token,
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
+
         const mapped = data
           .filter((cat: any) => cat.categoryName !== 'Todos')
           .map((cat: any) => ({ id: cat.id, name: cat.categoryName }));
         setCategoriesData(mapped);
         setCategories(mapped.map((c: any) => c.name));
       } catch {
-        console.warn('Não foi possível carregar as categorias.');
+        if (sessionRef.current === activeSessionId) {
+          console.warn('Não foi possível carregar as categorias.');
+        }
       }
     };
     fetchCategories();
-  }, []);
+  }, [userId, token]);
 
   const confirmAddField = () => {
     if (!newFieldLabel.trim()) {
@@ -184,11 +214,12 @@ export default function CredentialFormScreen({
   };
 
   const handleSave = async () => {
-    if (!name.trim()) {
+    if (!name.trim() || !userId || !token) {
       Alert.alert('Atenção', 'Dê um nome para esta credencial antes de salvar.');
       return;
     }
 
+    const activeSessionId = sessionRef.current;
     const mappedFields = fields.map(f => ({
       key: f.label,
       type: f.type === 'Senha' ? 'PASSWORD'
@@ -201,9 +232,9 @@ export default function CredentialFormScreen({
 
     try {
       if (isEditing) {
-        const response = await fetch('http://10.0.2.2:8080/credential/editCredential', {
+        await apiRequest('/credential/editCredential', {
           method: 'PUT',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
+          token,
           body: JSON.stringify({
             id: credentialId,
             credentialName: name.trim(),
@@ -211,21 +242,29 @@ export default function CredentialFormScreen({
             fields: mappedFields,
           }),
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
+
         Alert.alert('Sucesso', 'Credencial atualizada!');
         router.replace({ pathname: '/credentialDetails', params: { credentialId: credentialId } });
       } else {
-        const response = await fetch('http://10.0.2.2:8080/credential/registerNewCredential', {
+        await apiRequest('/credential/registerNewCredential', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
+          token,
           body: JSON.stringify({
             credentialName: name.trim(),
-            userId: userId,
-            category: category,
+            userId,
+            category,
             fields: mappedFields,
           }),
         });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
+
         Alert.alert('Sucesso', 'Credencial criada!');
         router.replace('/(drawer)/vault');
       }
