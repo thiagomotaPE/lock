@@ -128,8 +128,6 @@ public class CredentialService {
                     credentialField.setLabel(fieldDto.label != null ? fieldDto.label : fieldDto.key);
                     credentialField.setSensitive(Boolean.TRUE.equals(fieldDto.sensitive));
 
-                    System.out.println("Key: " + fieldDto.key);
-                    System.out.println("Value: " + fieldDto.value);
                     if (fieldDto.value != null) {
                         String encrypted = encryptionService.encrypt(fieldDto.value);
                         credentialField.setEncryptedValue(encrypted);
