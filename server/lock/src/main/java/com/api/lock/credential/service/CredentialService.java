@@ -7,7 +7,7 @@ import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.entity.CredentialField;
 import com.api.lock.credential.entity.FieldType;
 import com.api.lock.credential.repository.CredentialRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CredentialService {
-    @Autowired
-    private CredentialRepository credentialRepository;
-    @Autowired
-    private EncryptionService encryptionService;
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CredentialRepository credentialRepository;
+    private final EncryptionService encryptionService;
+    private final CategoryRepository categoryRepository;
 
     //Listar todas as credenciais do usuario
     public ResponseEntity<List<CredentialResponseDto>> getAllCredentialsByUserId(String userId) {

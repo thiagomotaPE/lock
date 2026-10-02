@@ -7,7 +7,7 @@ import com.api.lock.user.Dto.LoginUserDto;
 import com.api.lock.user.Dto.UserResponseDto;
 import com.api.lock.user.entity.User;
 import com.api.lock.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,13 +20,11 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    TokenService tokenService;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
     //Busca todos os usuarios
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {

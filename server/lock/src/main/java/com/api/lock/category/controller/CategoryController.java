@@ -5,21 +5,18 @@ import com.api.lock.category.dto.CreateCategoryDto;
 import com.api.lock.category.dto.UpdateCategoryDto;
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.service.CategoryService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/category")
+@RequiredArgsConstructor
 public class CategoryController {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping("/getAllCategories/{userId}")
     public ResponseEntity<List<CategoryResponseDto>> getAllCategories(@PathVariable String userId) {
