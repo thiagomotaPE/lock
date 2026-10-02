@@ -50,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserId(userId);
     setToken(token);
     setHasStoredSession(true);
+    setIsLoading(false);
   }
 
   async function signOut() {
@@ -57,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserId(null);
     setToken(null);
     setHasStoredSession(false);
+    setIsLoading(false);
   }
 
   return (
