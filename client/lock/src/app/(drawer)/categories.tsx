@@ -3,7 +3,8 @@ import { CategoryCard } from '@/components/categoryCard';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
-import { createCategory, deleteCategory, editCategory, getCategoriesForUser, type Category } from '@/services/categoryService';
+import { useCategoryActions } from '@/hooks/useCategoryActions';
+import { getCategoriesForUser, type Category } from '@/services/categoryService';
 import { getCredentialsForUser } from '@/services/credentialService';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
@@ -30,6 +31,7 @@ export default function CategoriesScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
+  const { createCategory, editCategory, deleteCategory } = useCategoryActions();
   const sessionRef = useRef(sessionId);
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,7 +124,7 @@ export default function CategoriesScreen() {
     setIsSubmitting(true);
 
     try {
-      await createCategory(userId, token, newCategoryName);
+      await createCategory(newCategoryName);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -133,7 +135,7 @@ export default function CategoriesScreen() {
       await fetchCategories();
       Alert.alert('Sucesso', 'Categoria criada!');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível criar a categoria. Tente novamente.');
+      Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível criar a categoria. Tente novamente.');
     } finally {
       if (sessionRef.current === activeSessionId) {
         setIsSubmitting(false);
@@ -155,7 +157,7 @@ export default function CategoriesScreen() {
     const activeSessionId = sessionRef.current;
 
     try {
-      await editCategory(selectedCategoryId, token, editCategoryName);
+      await editCategory(selectedCategoryId, editCategoryName);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -166,7 +168,7 @@ export default function CategoriesScreen() {
       await fetchCategories();
       Alert.alert('Sucesso', 'Categoria editada!');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível editar a categoria. Tente novamente.');
+      Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível editar a categoria. Tente novamente.');
     } finally {
       if (sessionRef.current === activeSessionId) {
         setIsSubmitting(false);
@@ -182,7 +184,7 @@ export default function CategoriesScreen() {
     const activeSessionId = sessionRef.current;
 
     try {
-      await deleteCategory(selectedCategoryId, token);
+      await deleteCategory(selectedCategoryId);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -192,7 +194,7 @@ export default function CategoriesScreen() {
       await fetchCategories();
       Alert.alert('Sucesso', 'Categoria exluida!');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível excluir a categoria. certifique-se de remover as suas credenciais desta categoria e tente novamente.');
+      Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível excluir a categoria. certifique-se de remover as suas credenciais desta categoria e tente novamente.');
     } finally {
       if (sessionRef.current === activeSessionId) {
         setIsSubmitting(false);

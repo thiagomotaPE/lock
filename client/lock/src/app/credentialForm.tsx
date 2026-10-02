@@ -2,8 +2,9 @@ import { useAuth } from '@/auth/AuthContext';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
+import { useCredentialActions } from '@/hooks/useCredentialActions';
 import { getCategoriesForUser } from '@/services/categoryService';
-import { createCredential, getCredentialDetails, updateCredential, type CredentialFieldPayload } from '@/services/credentialService';
+import { getCredentialDetails } from '@/services/credentialService';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
@@ -60,6 +61,7 @@ export default function CredentialFormScreen({
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
+  const { saveCredential } = useCredentialActions();
   const sessionRef = useRef(sessionId);
 
   const [name, setName] = useState(credential?.name ?? '');
@@ -214,54 +216,34 @@ export default function CredentialFormScreen({
   };
 
   const handleSave = async () => {
-    if (!name.trim() || !userId || !token) {
-      Alert.alert('Atenção', 'Dê um nome para esta credencial antes de salvar.');
-      return;
-    }
-
-    const activeSessionId = sessionRef.current;
-    const mappedFields: CredentialFieldPayload[] = fields.map((f) => ({
-      key: f.label,
-      type: (f.type === 'Senha' ? 'PASSWORD'
-        : f.type === 'E-mail' ? 'EMAIL'
-        : f.type === 'Numero' ? 'NUMBER'
-        : 'TEXT') as CredentialFieldPayload['type'],
-      value: f.value,
-      sensitive: f.type === 'Senha',
-    }));
-
     try {
-      if (isEditing) {
-        await updateCredential({
-          id: credentialId,
-          credentialName: name.trim(),
-          credentialCategoryId: categoryId,
-          fields: mappedFields,
-        }, token);
+      const saved = await saveCredential({
+        credentialId,
+        isEditing,
+        name,
+        category,
+        categoryId,
+        fields: fields.map((field) => ({
+          label: field.label,
+          type: field.type,
+          value: field.value,
+        })),
+      });
 
-        if (sessionRef.current !== activeSessionId) {
-          return;
-        }
-
-        Alert.alert('Sucesso', 'Credencial atualizada!');
-        router.replace({ pathname: '/credentialDetails', params: { credentialId: credentialId } });
-      } else {
-        await createCredential({
-          credentialName: name.trim(),
-          userId,
-          category,
-          fields: mappedFields,
-        }, token);
-
-        if (sessionRef.current !== activeSessionId) {
-          return;
-        }
-
-        Alert.alert('Sucesso', 'Credencial criada!');
-        router.replace('/(drawer)/vault');
+      if (!saved) {
+        return;
       }
+
+      if (isEditing && credentialId) {
+        Alert.alert('Sucesso', 'Credencial atualizada!');
+        router.replace({ pathname: '/credentialDetails', params: { credentialId } });
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Credencial criada!');
+      router.replace('/(drawer)/vault');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível salvar a credencial. Tente novamente.');
+      Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível salvar a credencial. Tente novamente.');
     }
   };
 

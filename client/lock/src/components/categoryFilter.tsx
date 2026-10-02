@@ -1,12 +1,12 @@
 import { useAuth } from '@/auth/AuthContext';
 import { CategoryFilterItem } from '@/components/categoryFilterItem';
 import { PrimaryModal } from '@/components/primaryModal';
-import { createCategory, getCategoriesForUser } from '@/services/categoryService';
+import { useCategories } from '@/hooks/useCategories';
 import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, ScrollView, TouchableOpacity, View } from 'react-native';
 
 type CategoryFilterProps = {
@@ -24,50 +24,16 @@ export function CategoryFilter({
 }: CategoryFilterProps) {
   const { theme } = useTheme();
   const style = styles(theme);
-  const { userId, token, sessionId } = useAuth();
-  const sessionRef = useRef(sessionId);
-  const [categories, setCategories] = useState<string[]>([]);
+  const { userId, token } = useAuth();
+  const { categories, reload, createCategory } = useCategories();
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchCategories = useCallback(async () => {
-    if (!userId || !token) {
-      setCategories([]);
-      return;
-    }
-
-    const activeSessionId = sessionRef.current;
-
-    try {
-      const data = await getCategoriesForUser(userId, token);
-
-      if (sessionRef.current !== activeSessionId) {
-        return;
-      }
-
-      const names: string[] = data
-        .map((category: any) => category.categoryName)
-        .filter((name: string) => name !== 'Todos');
-
-      const semCategoria = names.filter(n => n === 'Sem categoria');
-      const rest = names.filter(n => n !== 'Sem categoria');
-
-      setCategories([...rest, ...semCategoria]);
-    } catch (fetchError) {
-      if (sessionRef.current !== activeSessionId) {
-        return;
-      }
-      console.warn('Não foi possível carregar as categorias.', fetchError);
-      setCategories([]);
-    }
-  }, [userId, token, sessionId]);
-
   useFocusEffect(
     useCallback(() => {
-      sessionRef.current = sessionId;
-      fetchCategories();
-    }, [fetchCategories, sessionId])
+      reload();
+    }, [reload])
   );
 
   const handleSubmit = async () => {
@@ -83,11 +49,10 @@ export function CategoryFilter({
           return;
         }
 
-        await createCategory(userId, token, categoryName);
-  
+        await createCategory(categoryName.trim());
+
         setCategoryName('');
         setModalVisible(false);
-        await fetchCategories();
         Alert.alert('Sucesso', 'Categoria criada com sucesso!');
       } catch (err) {
         Alert.alert('Erro', 'Não foi possível criar a categoria. Verifique se essa categoria ja existe e tente novamente.');
