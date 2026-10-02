@@ -37,7 +37,8 @@ public class SecurityFilter extends OncePerRequestFilter {
             return;
         }
 
-        UserDetails user = userRepository.findByEmail(email);
+        UserDetails user = userRepository.findByEmail(email)
+                .orElse(null);
         if (user == null) {
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
