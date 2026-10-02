@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/AuthContext';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
 import { useTheme } from '@/theme/useTheme';
@@ -6,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { useState } from 'react';
 import { Image, Switch, Text, View } from 'react-native';
+
 const avatarUri = 'userImage';
 
 function CustomDrawerContent({
@@ -22,9 +24,11 @@ function CustomDrawerContent({
 {
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
     const router = useRouter();
+    const { signOut } = useAuth();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
       setLogoutModalVisible(false);
+      await signOut();
       router.replace('/login');
     };
 

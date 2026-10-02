@@ -45,10 +45,24 @@ export default function CategoriesScreen() {
   const [editCategoryName, setEditCategoryName] = useState('');
 
   useEffect(() => {
+    if (!userId || !token) {
+      setCategories([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+
     fetchCategories();
-  }, []);
+  }, [userId, token]);
 
   const fetchCategories = async () => {
+    if (!userId || !token) {
+      setCategories([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -68,8 +82,16 @@ export default function CategoriesScreen() {
         throw new Error('Failed to fetch data');
       }
 
+      if (!userId || !token) {
+        return;
+      }
+
       const categoriesData: Category[] = await categoriesRes.json();
       const credentialsData: any[] = await credentialsRes.json();
+
+      if (!userId || !token) {
+        return;
+      }
 
       // Contar credenciais por categoria
       const categoriesWithCount = categoriesData.map((cat) => ({
@@ -93,8 +115,16 @@ export default function CategoriesScreen() {
 
       setCategories([todosCategory, ...semCategoria, ...rest]);
     } catch (err) {
+      if (!userId || !token) {
+        return;
+      }
+
       setError('Não foi possível carregar as categorias.');
     } finally {
+      if (!userId || !token) {
+        return;
+      }
+
       setIsLoading(false);
     }
   };

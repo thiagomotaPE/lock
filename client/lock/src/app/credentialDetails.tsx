@@ -31,11 +31,7 @@ const defaultCredential: Credential = {
   id: 'demo',
   credentialName: 'Not found',
   categoryName: 'Not found',
-  fields: [
-    { key: '1', label: 'Usuário', type: 'TEXT', value: 'Not found', sensitive: false },
-    { key: '2', label: 'Senha', type: 'PASSWORD', value: 'Not found', sensitive: true },
-    { key: '3', label: 'URL', type: 'TEXT', value: 'Not found', sensitive: false },
-  ],
+  fields: [],
 };
 
 export default function CredentialDetailsScreen() {
