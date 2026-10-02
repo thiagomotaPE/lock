@@ -1,6 +1,6 @@
+import { logoutUser } from '@/services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { logoutUser } from '@/services/authService';
 
 type AuthContextData = {
   userId: string | null;

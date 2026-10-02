@@ -37,13 +37,13 @@ public class CredentialController {
 
     @PostMapping("/registerNewCredential")
     @Transactional
-    public ResponseEntity<Credential> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
         return credentialService.registerNewCredential(createCredentialDto);
     }
 
     @PutMapping("/editCredential")
     @Transactional
-    public ResponseEntity<Credential> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
         return credentialService.editCredential(updateCredentialDto);
     }
 
