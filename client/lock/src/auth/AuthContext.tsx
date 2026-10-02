@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { logoutUser } from '@/services/authService';
 
 type AuthContextData = {
   userId: string | null;
@@ -57,12 +58,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
-    await AsyncStorage.multiRemove(['user_id', 'user_token']);
-    setUserId(null);
-    setToken(null);
-    setHasStoredSession(false);
-    setSessionId((current) => current + 1);
-    setIsLoading(false);
+    const currentToken = token;
+
+    try {
+      if (currentToken) {
+        await logoutUser(currentToken);
+      }
+    } catch (error) {
+      console.warn('Backend logout failed; clearing local session anyway.', error);
+    } finally {
+      await AsyncStorage.multiRemove(['user_id', 'user_token', 'user_name', 'user_email']);
+      setUserId(null);
+      setToken(null);
+      setHasStoredSession(false);
+      setSessionId((current) => current + 1);
+      setIsLoading(false);
+    }
   }
 
   return (

@@ -20,3 +20,10 @@ export async function registerUser(username: string, email: string, password: st
     body: JSON.stringify({ username, email, password }),
   });
 }
+
+export async function logoutUser(token: string) {
+  return apiRequest('/user/logout', {
+    method: 'POST',
+    token,
+  });
+}
