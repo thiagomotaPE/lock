@@ -1,5 +1,6 @@
 package com.api.lock.user.service;
 
+import com.api.lock.common.exception.ConflictException;
 import com.api.lock.security.TokenService;
 import com.api.lock.user.Dto.CreateUserDto;
 import com.api.lock.user.Dto.LoginResponseDto;
@@ -7,7 +8,7 @@ import com.api.lock.user.Dto.LoginUserDto;
 import com.api.lock.user.Dto.UserResponseDto;
 import com.api.lock.user.entity.User;
 import com.api.lock.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,13 +21,11 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    TokenService tokenService;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
 
     //Busca todos os usuarios
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
@@ -49,15 +48,11 @@ public class UserService {
     //Cria um novo usuario
     public ResponseEntity<Object> registerNewUser(CreateUserDto createUserDto) {
         if (userRepository.existsByUsername(createUserDto.username())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Nome de usuário já está em uso."));
+            throw new ConflictException("Nome de usuário já está em uso.");
         }
 
         if (userRepository.existsByEmail(createUserDto.email())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "E-mail já cadastrado."));
+            throw new ConflictException("E-mail já cadastrado.");
         }
         verifyPassword(createUserDto.password());
         try {
@@ -68,7 +63,7 @@ public class UserService {
                     .status(HttpStatus.CREATED)
                     .body(Map.of("message", "Conta criada com sucesso."));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erro ao criar usuário.", e);
         }
     }
 

@@ -8,18 +8,17 @@ import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.service.CredentialService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/credential")
+@RequiredArgsConstructor
 public class CredentialController {
-    @Autowired
-    private CredentialService credentialService;
+    private final CredentialService credentialService;
 
     @GetMapping("/getAllCredentials/{userId}")
     public ResponseEntity<List<CredentialResponseDto>> getCredentials(@PathVariable String userId) {
@@ -38,13 +37,13 @@ public class CredentialController {
 
     @PostMapping("/registerNewCredential")
     @Transactional
-    public ResponseEntity<Credential> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> registerCredential(@RequestBody @Valid CreateCredentialDto createCredentialDto) {
         return credentialService.registerNewCredential(createCredentialDto);
     }
 
     @PutMapping("/editCredential")
     @Transactional
-    public ResponseEntity<Credential> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> editCredential(@RequestBody @Valid UpdateCredentialDto updateCredentialDto) {
         return credentialService.editCredential(updateCredentialDto);
     }
 

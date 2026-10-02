@@ -10,6 +10,8 @@ import java.util.UUID;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
-    Optional<Category> findByCategoryName(String categoryName);
+    Optional<Category> findByCategoryNameAndUser_Id(String categoryName, String userId);
+    Optional<Category> findByCategoryNameAndUser_IdIgnoreCase(String categoryName, String userId);
     List<Category> findByUser_Id(String userId);
+    boolean existsByUser_IdAndCategoryNameIgnoreCase(String userId, String categoryName);
 }

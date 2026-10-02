@@ -1,6 +1,7 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryInput } from '@/components/primaryInput';
+import { registerUser } from '@/services/authService';
 import { styles } from '@/styles/register.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -46,24 +47,14 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch('http://10.0.2.2:8080/user/registerNewUser', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        Alert.alert('Erro', data.message);
-        return;
-      }
+      await registerUser(username, email, password);
 
       Alert.alert('Sucesso', 'Conta criada com sucesso!', [
         { text: 'OK', onPress: () => router.replace('/login') }
       ]);
     } catch (err: any) {
-      Alert.alert('Erro', 'Não foi possível conectar ao servidor.');
+      const message = err?.message?.includes('HTTP') ? err.message : 'Não foi possível conectar ao servidor.';
+      Alert.alert('Erro', message);
     }
   };
 

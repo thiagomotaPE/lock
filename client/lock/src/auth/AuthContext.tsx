@@ -1,19 +1,24 @@
+import { logoutUser } from '@/services/authService';
+import {
+  clearStoredSession,
+  isDeviceAuthEnabled,
+  restoreStoredSession,
+  saveStoredSession,
+  setDeviceAuthEnabled,
+} from '@/services/localAuthService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { biometricUnlock } from './biometricUnlock';
-
-let biometricPromptStarted = false;
 
 type AuthContextData = {
   userId: string | null;
   token: string | null;
   isLoading: boolean;
   hasStoredSession: boolean;
-  isBiometricSupported: boolean;
+  deviceAuthEnabled: boolean;
+  sessionId: number;
   signIn: (userId: string, token: string) => Promise<void>;
-  biometricSignIn: () => Promise<boolean>;
   signOut: () => Promise<void>;
+  setDeviceAuthPreference: (enabled: boolean) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -23,46 +28,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasStoredSession, setHasStoredSession] = useState(false);
-  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [deviceAuthEnabled, setDeviceAuthEnabledState] = useState(false);
+  const [sessionId, setSessionId] = useState(0);
 
   useEffect(() => {
     const loadSession = async () => {
-      const values = await AsyncStorage.multiGet(['user_id', 'user_token']);
+      const [{ userId: storedUserId, token: storedToken }, enabled] = await Promise.all([
+        restoreStoredSession(),
+        isDeviceAuthEnabled(),
+      ]);
 
-      const storedUserId = values[0][1];
-      const storedToken = values[1][1];
       const storedSessionExists = !!storedUserId && !!storedToken;
 
       setHasStoredSession(storedSessionExists);
+      setDeviceAuthEnabledState(enabled);
 
       if (!storedSessionExists) {
-        setIsLoading(false);
-        return;
-      }
-
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      const biometricSupported = hasHardware && isEnrolled;
-
-      setIsBiometricSupported(biometricSupported);
-
-      if (!biometricSupported) {
-        setIsLoading(false);
-        return;
-      }
-
-      if (biometricPromptStarted) {
-        setIsLoading(false);
-        return;
-      }
-
-      biometricPromptStarted = true;
-      const ok = await biometricUnlock();
-      biometricPromptStarted = false;
-
-      if (!ok) {
-        setUserId(null);
-        setToken(null);
         setIsLoading(false);
         return;
       }
@@ -75,52 +56,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadSession();
   }, []);
 
-  async function signIn(userId: string, token: string) {
-    const hasHardware = await LocalAuthentication.hasHardwareAsync();
-    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-    const biometricSupported = hasHardware && isEnrolled;
+  async function signIn(nextUserId: string, nextToken: string) {
+    await saveStoredSession(nextUserId, nextToken);
 
-    await AsyncStorage.multiSet([
-      ['user_id', userId],
-      ['user_token', token],
-      ['biometric_enabled', biometricSupported ? 'true' : 'false'],
-    ]);
-    setUserId(userId);
-    setToken(token);
+    setUserId(nextUserId);
+    setToken(nextToken);
     setHasStoredSession(true);
-    setIsBiometricSupported(biometricSupported);
+    setSessionId((current) => current + 1);
+    setIsLoading(false);
   }
 
-  async function biometricSignIn() {
-    const values = await AsyncStorage.multiGet(['user_id', 'user_token']);
-    const storedUserId = values[0][1];
-    const storedToken = values[1][1];
-
-    if (!storedUserId || !storedToken) {
-      return false;
-    }
-
-    const ok = await biometricUnlock();
-
-    if (!ok) {
-      return false;
-    }
-
-    setUserId(storedUserId);
-    setToken(storedToken);
-    return true;
+  async function setDeviceAuthPreference(enabled: boolean) {
+    await setDeviceAuthEnabled(enabled);
+    setDeviceAuthEnabledState(enabled);
   }
 
   async function signOut() {
-    await AsyncStorage.multiRemove(['user_id', 'user_token', 'biometric_enabled']);
-    setUserId(null);
-    setToken(null);
-    setHasStoredSession(false);
-    setIsBiometricSupported(false);
+    const currentToken = token;
+
+    try {
+      if (currentToken) {
+        await logoutUser(currentToken);
+      }
+    } catch (error) {
+      console.warn('Backend logout failed; clearing local session anyway.', error);
+    } finally {
+      await Promise.all([
+        clearStoredSession(),
+        AsyncStorage.multiRemove(['user_name', 'user_email']),
+      ]);
+      setUserId(null);
+      setToken(null);
+      setHasStoredSession(false);
+      setSessionId((current) => current + 1);
+      setIsLoading(false);
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, isBiometricSupported, signIn, biometricSignIn, signOut }}>
+    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, deviceAuthEnabled, sessionId, signIn, signOut, setDeviceAuthPreference }}>
       {children}
     </AuthContext.Provider>
   );

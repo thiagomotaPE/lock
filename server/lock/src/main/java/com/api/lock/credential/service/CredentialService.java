@@ -2,12 +2,13 @@ package com.api.lock.credential.service;
 
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.repository.CategoryRepository;
+import com.api.lock.common.exception.ResourceNotFoundException;
 import com.api.lock.credential.dto.*;
 import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.entity.CredentialField;
 import com.api.lock.credential.entity.FieldType;
 import com.api.lock.credential.repository.CredentialRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CredentialService {
-    @Autowired
-    private CredentialRepository credentialRepository;
-    @Autowired
-    private EncryptionService encryptionService;
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CredentialRepository credentialRepository;
+    private final EncryptionService encryptionService;
+    private final CategoryRepository categoryRepository;
 
     //Listar todas as credenciais do usuario
     public ResponseEntity<List<CredentialResponseDto>> getAllCredentialsByUserId(String userId) {
@@ -41,7 +40,7 @@ public class CredentialService {
     public ResponseEntity<CredentialDetailResponseDto> getCredentialDetailsById(String credentialId) {
         try {
             Credential credentialDetails = credentialRepository.findById(credentialId)
-                    .orElseThrow(() -> new RuntimeException("Credencial não encontrada"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Credencial não encontrada."));
 
             List<FieldResponseDto> fields = credentialDetails.getFields().stream().map(credentialField -> {
                 String decryptedValue = "";
@@ -92,30 +91,26 @@ public class CredentialService {
 
 
     //Criar nova credencial
-    public ResponseEntity<Credential> registerNewCredential(CreateCredentialDto createCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> registerNewCredential(CreateCredentialDto createCredentialDto) {
         try {
-            //Criando o objeto com os dados obrigatorios
             Credential newCredential = new Credential();
             newCredential.setCredentialName(createCredentialDto.credentialName());
             newCredential.setUserId(createCredentialDto.userId());
             newCredential.setCreatedAt(java.time.LocalDateTime.now());
             newCredential.setUpdatedAt(java.time.LocalDateTime.now());
 
-            if(createCredentialDto.category() != null){
+            if (createCredentialDto.category() != null && !createCredentialDto.category().isBlank()) {
                 Category newCategory = categoryRepository
-                        .findByCategoryName(createCredentialDto.category())
-                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                        .findByCategoryNameAndUser_IdIgnoreCase(createCredentialDto.category().trim(), createCredentialDto.userId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
                 newCredential.setCategory(newCategory);
-            }else {
+            } else {
                 Category defaultCategory = categoryRepository
-                        .findByCategoryName("Sem categoria")
-                        .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada"));
-
+                        .findByCategoryNameAndUser_IdIgnoreCase("Sem categoria", createCredentialDto.userId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoria padrão não encontrada."));
                 newCredential.setCategory(defaultCategory);
             }
 
-
-            //Verificando se o usuario adicionou algum campo a credencial
             if (createCredentialDto.fields() != null) {
                 createCredentialDto.fields().forEach(fieldDto -> {
                     CredentialField credentialField = new CredentialField();
@@ -128,8 +123,6 @@ public class CredentialService {
                     credentialField.setLabel(fieldDto.label != null ? fieldDto.label : fieldDto.key);
                     credentialField.setSensitive(Boolean.TRUE.equals(fieldDto.sensitive));
 
-                    System.out.println("Key: " + fieldDto.key);
-                    System.out.println("Value: " + fieldDto.value);
                     if (fieldDto.value != null) {
                         String encrypted = encryptionService.encrypt(fieldDto.value);
                         credentialField.setEncryptedValue(encrypted);
@@ -139,18 +132,19 @@ public class CredentialService {
                     newCredential.addField(credentialField);
                 });
             }
-            credentialRepository.save(newCredential);
-            return ResponseEntity.ok().build();
+
+            Credential saved = credentialRepository.save(newCredential);
+            return ResponseEntity.ok(toDetailDto(saved));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     //Editar credencial existente
-    public ResponseEntity<Credential> editCredential(UpdateCredentialDto updateCredentialDto) {
+    public ResponseEntity<CredentialDetailResponseDto> editCredential(UpdateCredentialDto updateCredentialDto) {
         Optional<Credential> optional = credentialRepository.findById(updateCredentialDto.id());
         if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Credencial não encontrada.");
         }
         Credential credential = optional.get();
         if (updateCredentialDto.credentialName() != null)
@@ -160,13 +154,10 @@ public class CredentialService {
         if (updateCredentialDto.credentialCategoryId() != null) {
             Category category = categoryRepository
                     .findById(updateCredentialDto.credentialCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
-
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
             credential.setCategory(category);
         }
 
-
-        // simple strategy: clear existing fields and add provided ones
         credential.getFields().clear();
         if (updateCredentialDto.fields() != null) {
             updateCredentialDto.fields().forEach(fieldDto -> {
@@ -189,7 +180,7 @@ public class CredentialService {
         }
 
         Credential changedCredential = credentialRepository.save(credential);
-        return ResponseEntity.ok(changedCredential);
+        return ResponseEntity.ok(toDetailDto(changedCredential));
     }
 
     //Apagar credencial
@@ -197,12 +188,15 @@ public class CredentialService {
         try {
             Optional<Credential> opt = credentialRepository.findById(credentialId);
             if (opt.isEmpty()) {
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Credencial não encontrada.");
             }
             credentialRepository.deleteById(credentialId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Erro ao excluir credencial.", e);
         }
 
     }
@@ -222,6 +216,39 @@ public class CredentialService {
                 credential.getUserId(),
                 categoryId,
                 categoryName
+        );
+    }
+
+    private CredentialDetailResponseDto toDetailDto(Credential credential) {
+        List<FieldResponseDto> fields = credential.getFields() == null ? List.of() : credential.getFields().stream().map(field -> {
+            String decryptedValue = "";
+            try {
+                decryptedValue = encryptionService.decrypt(field.getEncryptedValue());
+            } catch (Exception ignored) {
+            }
+            return new FieldResponseDto(
+                    field.getKeyName(),
+                    field.getLabel(),
+                    field.getFieldType().name(),
+                    decryptedValue,
+                    field.isSensitive()
+            );
+        }).toList();
+
+        String categoryId = null;
+        String categoryName = null;
+        if (credential.getCategory() != null) {
+            categoryId = credential.getCategory().getId();
+            categoryName = credential.getCategory().getCategoryName();
+        }
+
+        return new CredentialDetailResponseDto(
+                credential.getId(),
+                credential.getCredentialName(),
+                credential.getUserId(),
+                categoryId,
+                categoryName,
+                fields
         );
     }
 }

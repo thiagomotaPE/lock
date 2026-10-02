@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment files ###
+.env
+.env.dev
+.env.*
+!.env.example
+
+### Secrets and config ###
+*.pem
+*.key
+*.crt
+*.p12
+application-local.properties
+application-dev.properties
+application-prod.properties

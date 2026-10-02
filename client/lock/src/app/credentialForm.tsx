@@ -2,12 +2,15 @@ import { useAuth } from '@/auth/AuthContext';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
+import { useCredentialActions } from '@/hooks/useCredentialActions';
+import { getCategoriesForUser } from '@/services/categoryService';
+import { getCredentialDetails } from '@/services/credentialService';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -54,10 +57,12 @@ export default function CredentialFormScreen({
   onBack,
   onSave,
 }: CredentialFormScreenProps) {
-  const { userId, token } = useAuth();
+  const { userId, token, sessionId } = useAuth();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const style = styles(theme);
+  const { saveCredential } = useCredentialActions();
+  const sessionRef = useRef(sessionId);
 
   const [name, setName] = useState(credential?.name ?? '');
   const [category, setCategory] = useState(credential?.category ?? 'Sem categoria');
@@ -79,16 +84,30 @@ export default function CredentialFormScreen({
   const [categoriesData, setCategoriesData] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
+    sessionRef.current = sessionId;
+  }, [sessionId]);
+
+  useEffect(() => {
     if (!params.credentialId) return;
 
     const fetchCredential = async () => {
+      if (!token) {
+        return;
+      }
+
+      const credentialId = params.credentialId;
+      if (!credentialId) {
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
+
       try {
-        const response = await fetch(`http://10.0.2.2:8080/credential/getCredentialDetails/${params.credentialId}`, {
-          method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const data = await getCredentialDetails(credentialId, token);
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
 
         setCredentialId(data.id);
         setName(data.credentialName);
@@ -104,34 +123,47 @@ export default function CredentialFormScreen({
           value: f.value,
         })));
       } catch {
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
         Alert.alert('Erro', 'Não foi possível carregar a credencial.');
       }
     };
 
     fetchCredential();
-  }, [params.credentialId]);
+  }, [params.credentialId, token]);
 
 
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!userId || !token) {
+        setCategoriesData([]);
+        setCategories(['Sem categoria']);
+        return;
+      }
+
+      const activeSessionId = sessionRef.current;
+
       try {
-        const response = await fetch(`http://10.0.2.2:8080/category/getAllCategories/${userId}`, {
-          method: 'GET',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`}
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+        const data = await getCategoriesForUser(userId, token);
+
+        if (sessionRef.current !== activeSessionId) {
+          return;
+        }
+
         const mapped = data
           .filter((cat: any) => cat.categoryName !== 'Todos')
           .map((cat: any) => ({ id: cat.id, name: cat.categoryName }));
         setCategoriesData(mapped);
         setCategories(mapped.map((c: any) => c.name));
       } catch {
-        console.warn('Não foi possível carregar as categorias.');
+        if (sessionRef.current === activeSessionId) {
+          console.warn('Não foi possível carregar as categorias.');
+        }
       }
     };
     fetchCategories();
-  }, []);
+  }, [userId, token]);
 
   const confirmAddField = () => {
     if (!newFieldLabel.trim()) {
@@ -184,53 +216,34 @@ export default function CredentialFormScreen({
   };
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      Alert.alert('Atenção', 'Dê um nome para esta credencial antes de salvar.');
-      return;
-    }
-
-    const mappedFields = fields.map(f => ({
-      key: f.label,
-      type: f.type === 'Senha' ? 'PASSWORD'
-          : f.type === 'E-mail' ? 'EMAIL'
-          : f.type === 'Numero' ? 'NUMBER'
-          : 'TEXT',
-      value: f.value,
-      sensitive: f.type === 'Senha',
-    }));
-
     try {
-      if (isEditing) {
-        const response = await fetch('http://10.0.2.2:8080/credential/editCredential', {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
-          body: JSON.stringify({
-            id: credentialId,
-            credentialName: name.trim(),
-            credentialCategoryId: categoryId,
-            fields: mappedFields,
-          }),
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        Alert.alert('Sucesso', 'Credencial atualizada!');
-        router.replace({ pathname: '/credentialDetails', params: { credentialId: credentialId } });
-      } else {
-        const response = await fetch('http://10.0.2.2:8080/credential/registerNewCredential', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`},
-          body: JSON.stringify({
-            credentialName: name.trim(),
-            userId: userId,
-            category: category,
-            fields: mappedFields,
-          }),
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        Alert.alert('Sucesso', 'Credencial criada!');
-        router.replace('/(drawer)/vault');
+      const saved = await saveCredential({
+        credentialId,
+        isEditing,
+        name,
+        category,
+        categoryId,
+        fields: fields.map((field) => ({
+          label: field.label,
+          type: field.type,
+          value: field.value,
+        })),
+      });
+
+      if (!saved) {
+        return;
       }
+
+      if (isEditing && credentialId) {
+        Alert.alert('Sucesso', 'Credencial atualizada!');
+        router.replace({ pathname: '/credentialDetails', params: { credentialId } });
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Credencial criada!');
+      router.replace('/(drawer)/vault');
     } catch (err) {
-      Alert.alert('Erro', 'Não foi possível salvar a credencial. Tente novamente.');
+      Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível salvar a credencial. Tente novamente.');
     }
   };
 

@@ -5,7 +5,7 @@ import com.api.lock.user.Dto.LoginUserDto;
 import com.api.lock.user.Dto.UserResponseDto;
 import com.api.lock.user.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +13,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<UserResponseDto>> getUsers() {

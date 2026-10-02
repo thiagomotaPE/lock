@@ -1,8 +1,8 @@
-import { useAuth } from "@/auth/AuthContext";
 import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
 import { SearchBar } from "@/components/searchBar";
+import { useCredentials } from '@/hooks/useCredentials';
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from "@expo/vector-icons";
@@ -22,45 +22,18 @@ type CredentialItem = {
 };
 
 export default function Vault() {
-    const { userId, token } = useAuth();
     const { theme } = useTheme();
     const style = styles(theme);
     const navigation = useNavigation();
     const params = useLocalSearchParams<{ selectedCategory?: string }>();
-    const [credentials, setCredentials] = useState<CredentialItem[]>([]);
+    const { credentials, isLoading, error } = useCredentials();
     const [query, setQuery] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [selectedFilter, setSelectedFilter] = useState(params.selectedCategory ?? 'Todos');
 
     useEffect(() => {
-      const loadCredentials = async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-          const response = await fetch(`http://10.0.2.2:8080/credential/getAllCredentials/${userId}`, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json', "Authorization": `Bearer ${token}`,}
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-          setCredentials(data);
-        } catch (fetchError) {
-          setError('Não foi possível carregar as credenciais. Verifique se o servidor está rodando.');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
       if (params.selectedCategory) {
         setSelectedFilter(params.selectedCategory);
       }
-
-      loadCredentials();
     }, [params.selectedCategory]);
 
     const filteredCredentials = useMemo(

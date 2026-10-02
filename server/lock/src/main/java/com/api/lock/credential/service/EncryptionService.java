@@ -46,7 +46,6 @@ public class EncryptionService {
         try {
             if (combined == null || combined.isEmpty()) return "";
             String[] parts = combined.split(":");
-            System.out.println("PARTS LENGTH: " + parts.length);
             if (parts.length != 2) return "";
             byte[] iv = Base64.getDecoder().decode(parts[0]);
             byte[] ct = Base64.getDecoder().decode(parts[1]);
