@@ -2,6 +2,7 @@ package com.api.lock.credential.service;
 
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.repository.CategoryRepository;
+import com.api.lock.common.exception.ResourceNotFoundException;
 import com.api.lock.credential.dto.*;
 import com.api.lock.credential.entity.Credential;
 import com.api.lock.credential.entity.CredentialField;
@@ -39,7 +40,7 @@ public class CredentialService {
     public ResponseEntity<CredentialDetailResponseDto> getCredentialDetailsById(String credentialId) {
         try {
             Credential credentialDetails = credentialRepository.findById(credentialId)
-                    .orElseThrow(() -> new RuntimeException("Credencial não encontrada"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Credencial não encontrada."));
 
             List<FieldResponseDto> fields = credentialDetails.getFields().stream().map(credentialField -> {
                 String decryptedValue = "";
@@ -102,12 +103,12 @@ public class CredentialService {
             if(createCredentialDto.category() != null){
                 Category newCategory = categoryRepository
                         .findByCategoryName(createCredentialDto.category())
-                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
                 newCredential.setCategory(newCategory);
             }else {
                 Category defaultCategory = categoryRepository
                         .findByCategoryName("Sem categoria")
-                        .orElseThrow(() -> new RuntimeException("Categoria padrão não encontrada"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoria padrão não encontrada."));
 
                 newCredential.setCategory(defaultCategory);
             }
@@ -146,7 +147,7 @@ public class CredentialService {
     public ResponseEntity<Credential> editCredential(UpdateCredentialDto updateCredentialDto) {
         Optional<Credential> optional = credentialRepository.findById(updateCredentialDto.id());
         if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Credencial não encontrada.");
         }
         Credential credential = optional.get();
         if (updateCredentialDto.credentialName() != null)
@@ -156,7 +157,7 @@ public class CredentialService {
         if (updateCredentialDto.credentialCategoryId() != null) {
             Category category = categoryRepository
                     .findById(updateCredentialDto.credentialCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
 
             credential.setCategory(category);
         }
@@ -193,12 +194,15 @@ public class CredentialService {
         try {
             Optional<Credential> opt = credentialRepository.findById(credentialId);
             if (opt.isEmpty()) {
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Credencial não encontrada.");
             }
             credentialRepository.deleteById(credentialId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Erro ao excluir credencial.", e);
         }
 
     }

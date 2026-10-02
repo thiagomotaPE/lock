@@ -1,5 +1,6 @@
 package com.api.lock.user.service;
 
+import com.api.lock.common.exception.ConflictException;
 import com.api.lock.security.TokenService;
 import com.api.lock.user.Dto.CreateUserDto;
 import com.api.lock.user.Dto.LoginResponseDto;
@@ -47,15 +48,11 @@ public class UserService {
     //Cria um novo usuario
     public ResponseEntity<Object> registerNewUser(CreateUserDto createUserDto) {
         if (userRepository.existsByUsername(createUserDto.username())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "Nome de usuário já está em uso."));
+            throw new ConflictException("Nome de usuário já está em uso.");
         }
 
         if (userRepository.existsByEmail(createUserDto.email())) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", "E-mail já cadastrado."));
+            throw new ConflictException("E-mail já cadastrado.");
         }
         verifyPassword(createUserDto.password());
         try {
@@ -66,7 +63,7 @@ public class UserService {
                     .status(HttpStatus.CREATED)
                     .body(Map.of("message", "Conta criada com sucesso."));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erro ao criar usuário.", e);
         }
     }
 

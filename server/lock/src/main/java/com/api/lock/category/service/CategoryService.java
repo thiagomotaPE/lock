@@ -5,8 +5,7 @@ import com.api.lock.category.dto.CreateCategoryDto;
 import com.api.lock.category.dto.UpdateCategoryDto;
 import com.api.lock.category.entity.Category;
 import com.api.lock.category.repository.CategoryRepository;
-import com.api.lock.credential.dto.CredentialResponseDto;
-import com.api.lock.credential.entity.Credential;
+import com.api.lock.common.exception.ResourceNotFoundException;
 import com.api.lock.user.entity.User;
 import com.api.lock.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -38,7 +37,7 @@ public class CategoryService {
     public ResponseEntity<List<Category>> registerNewCategory(CreateCategoryDto createCategoryDto) {
         try {
             User user = userRepository.findById(createCategoryDto.userId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado."));
 
             Category newCategory = new Category();
             newCategory.setCategoryName(createCategoryDto.categoryName());
@@ -47,7 +46,10 @@ public class CategoryService {
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Erro ao criar categoria.", e);
         }
     }
 
@@ -57,7 +59,7 @@ public class CategoryService {
         try {
             Optional<Category> optional = categoryRepository.findById(categoryId);
             if (optional.isEmpty()) {
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Categoria não encontrada.");
             }
             Category category = optional.get();
             if (updateCategoryDto.newCategoryName() != null)
@@ -65,17 +67,26 @@ public class CategoryService {
             categoryRepository.save(category);
             return ResponseEntity.ok(category);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Erro ao atualizar categoria.", e);
         }
     }
 
     //Deleta uma categoria
     public ResponseEntity<Category> deleteCategory(String categoryId) {
         try {
+            if (!categoryRepository.existsById(categoryId)) {
+                throw new ResourceNotFoundException("Categoria não encontrada.");
+            }
             categoryRepository.deleteById(categoryId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            if (e instanceof ResourceNotFoundException) {
+                throw e;
+            }
+            throw new RuntimeException("Erro ao excluir categoria.", e);
         }
     }
 
