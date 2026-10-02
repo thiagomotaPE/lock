@@ -1,4 +1,11 @@
 import { logoutUser } from '@/services/authService';
+import {
+  clearStoredSession,
+  isDeviceAuthEnabled,
+  restoreStoredSession,
+  saveStoredSession,
+  setDeviceAuthEnabled,
+} from '@/services/localAuthService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
 
@@ -7,9 +14,11 @@ type AuthContextData = {
   token: string | null;
   isLoading: boolean;
   hasStoredSession: boolean;
+  deviceAuthEnabled: boolean;
   sessionId: number;
   signIn: (userId: string, token: string) => Promise<void>;
   signOut: () => Promise<void>;
+  setDeviceAuthPreference: (enabled: boolean) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -19,17 +28,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasStoredSession, setHasStoredSession] = useState(false);
+  const [deviceAuthEnabled, setDeviceAuthEnabledState] = useState(false);
   const [sessionId, setSessionId] = useState(0);
 
   useEffect(() => {
     const loadSession = async () => {
-      const values = await AsyncStorage.multiGet(['user_id', 'user_token']);
+      const [{ userId: storedUserId, token: storedToken }, enabled] = await Promise.all([
+        restoreStoredSession(),
+        isDeviceAuthEnabled(),
+      ]);
 
-      const storedUserId = values[0][1];
-      const storedToken = values[1][1];
       const storedSessionExists = !!storedUserId && !!storedToken;
 
       setHasStoredSession(storedSessionExists);
+      setDeviceAuthEnabledState(enabled);
 
       if (!storedSessionExists) {
         setIsLoading(false);
@@ -45,16 +57,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function signIn(nextUserId: string, nextToken: string) {
-    await AsyncStorage.multiSet([
-      ['user_id', nextUserId],
-      ['user_token', nextToken],
-    ]);
+    await saveStoredSession(nextUserId, nextToken);
 
     setUserId(nextUserId);
     setToken(nextToken);
     setHasStoredSession(true);
     setSessionId((current) => current + 1);
     setIsLoading(false);
+  }
+
+  async function setDeviceAuthPreference(enabled: boolean) {
+    await setDeviceAuthEnabled(enabled);
+    setDeviceAuthEnabledState(enabled);
   }
 
   async function signOut() {
@@ -67,7 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.warn('Backend logout failed; clearing local session anyway.', error);
     } finally {
-      await AsyncStorage.multiRemove(['user_id', 'user_token', 'user_name', 'user_email']);
+      await Promise.all([
+        clearStoredSession(),
+        AsyncStorage.multiRemove(['user_name', 'user_email']),
+      ]);
       setUserId(null);
       setToken(null);
       setHasStoredSession(false);
@@ -77,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, sessionId, signIn, signOut }}>
+    <AuthContext.Provider value={{ userId, token, isLoading, hasStoredSession, deviceAuthEnabled, sessionId, signIn, signOut, setDeviceAuthPreference }}>
       {children}
     </AuthContext.Provider>
   );
