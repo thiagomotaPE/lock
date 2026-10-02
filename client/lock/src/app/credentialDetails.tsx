@@ -3,7 +3,7 @@ import { CredentialField } from '@/components/credentialField';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
-import { apiRequest } from '@/services/api';
+import { deleteCredential, getCredentialDetails } from '@/services/credentialService';
 import { styles } from '@/styles/credentialDetails.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -72,10 +72,7 @@ export default function CredentialDetailsScreen() {
       setError(null);
 
       try {
-        const data = await apiRequest<Credential>(`/credential/getCredentialDetails/${params.credentialId}`, {
-          method: 'GET',
-          token,
-        });
+        const data = await getCredentialDetails(params.credentialId, token);
 
         if (sessionRef.current !== activeSessionId) {
           return;
@@ -121,10 +118,7 @@ export default function CredentialDetailsScreen() {
       }
 
       const activeSessionId = sessionRef.current;
-      await apiRequest(`/credential/deleteCredential/${params.credentialId}`, {
-        method: 'DELETE',
-        token,
-      });
+      await deleteCredential(params.credentialId, token);
 
       if (sessionRef.current !== activeSessionId) {
         return;

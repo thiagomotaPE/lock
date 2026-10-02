@@ -2,7 +2,8 @@ import { useAuth } from '@/auth/AuthContext';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
-import { apiRequest } from '@/services/api';
+import { getCategoriesForUser } from '@/services/categoryService';
+import { createCredential, getCredentialDetails, updateCredential, type CredentialFieldPayload } from '@/services/credentialService';
 import { styles } from '@/styles/credentialForm.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
@@ -92,13 +93,15 @@ export default function CredentialFormScreen({
         return;
       }
 
+      const credentialId = params.credentialId;
+      if (!credentialId) {
+        return;
+      }
+
       const activeSessionId = sessionRef.current;
 
       try {
-        const data = await apiRequest<any>(`/credential/getCredentialDetails/${params.credentialId}`, {
-          method: 'GET',
-          token,
-        });
+        const data = await getCredentialDetails(credentialId, token);
 
         if (sessionRef.current !== activeSessionId) {
           return;
@@ -140,10 +143,7 @@ export default function CredentialFormScreen({
       const activeSessionId = sessionRef.current;
 
       try {
-        const data = await apiRequest<any[]>(`/category/getAllCategories/${userId}`, {
-          method: 'GET',
-          token,
-        });
+        const data = await getCategoriesForUser(userId, token);
 
         if (sessionRef.current !== activeSessionId) {
           return;
@@ -220,28 +220,24 @@ export default function CredentialFormScreen({
     }
 
     const activeSessionId = sessionRef.current;
-    const mappedFields = fields.map(f => ({
+    const mappedFields: CredentialFieldPayload[] = fields.map((f) => ({
       key: f.label,
-      type: f.type === 'Senha' ? 'PASSWORD'
-          : f.type === 'E-mail' ? 'EMAIL'
-          : f.type === 'Numero' ? 'NUMBER'
-          : 'TEXT',
+      type: (f.type === 'Senha' ? 'PASSWORD'
+        : f.type === 'E-mail' ? 'EMAIL'
+        : f.type === 'Numero' ? 'NUMBER'
+        : 'TEXT') as CredentialFieldPayload['type'],
       value: f.value,
       sensitive: f.type === 'Senha',
     }));
 
     try {
       if (isEditing) {
-        await apiRequest('/credential/editCredential', {
-          method: 'PUT',
-          token,
-          body: JSON.stringify({
-            id: credentialId,
-            credentialName: name.trim(),
-            credentialCategoryId: categoryId,
-            fields: mappedFields,
-          }),
-        });
+        await updateCredential({
+          id: credentialId,
+          credentialName: name.trim(),
+          credentialCategoryId: categoryId,
+          fields: mappedFields,
+        }, token);
 
         if (sessionRef.current !== activeSessionId) {
           return;
@@ -250,16 +246,12 @@ export default function CredentialFormScreen({
         Alert.alert('Sucesso', 'Credencial atualizada!');
         router.replace({ pathname: '/credentialDetails', params: { credentialId: credentialId } });
       } else {
-        await apiRequest('/credential/registerNewCredential', {
-          method: 'POST',
-          token,
-          body: JSON.stringify({
-            credentialName: name.trim(),
-            userId,
-            category,
-            fields: mappedFields,
-          }),
-        });
+        await createCredential({
+          credentialName: name.trim(),
+          userId,
+          category,
+          fields: mappedFields,
+        }, token);
 
         if (sessionRef.current !== activeSessionId) {
           return;

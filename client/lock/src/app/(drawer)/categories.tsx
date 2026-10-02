@@ -3,7 +3,8 @@ import { CategoryCard } from '@/components/categoryCard';
 import { Header } from '@/components/header';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryModal } from '@/components/primaryModal';
-import { apiRequest } from '@/services/api';
+import { createCategory, deleteCategory, editCategory, getCategoriesForUser, type Category } from '@/services/categoryService';
+import { getCredentialsForUser } from '@/services/credentialService';
 import { styles } from '@/styles/categories.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
@@ -19,11 +20,6 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-type Category = {
-  id: string;
-  categoryName: string;
-};
 
 type CategoryWithCount = Category & {
   count: number;
@@ -75,14 +71,8 @@ export default function CategoriesScreen() {
 
     try {
       const [categoriesData, credentialsData] = await Promise.all([
-        apiRequest<Category[]>(`/category/getAllCategories/${userId}`, {
-          method: 'GET',
-          token,
-        }),
-        apiRequest<any[]>(`/credential/getAllCredentials/${userId}`, {
-          method: 'GET',
-          token,
-        }),
+        getCategoriesForUser(userId, token),
+        getCredentialsForUser(userId, token),
       ]);
 
       if (sessionRef.current !== activeSessionId) {
@@ -132,14 +122,7 @@ export default function CategoriesScreen() {
     setIsSubmitting(true);
 
     try {
-      await apiRequest('/category/registerNewCategory', {
-        method: 'POST',
-        token,
-        body: JSON.stringify({
-          categoryName: newCategoryName.trim(),
-          userId,
-        }),
-      });
+      await createCategory(userId, token, newCategoryName);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -172,11 +155,7 @@ export default function CategoriesScreen() {
     const activeSessionId = sessionRef.current;
 
     try {
-      await apiRequest(`/category/editCategory/${selectedCategoryId}`, {
-        method: 'PUT',
-        token,
-        body: JSON.stringify({ newCategoryName: editCategoryName.trim() }),
-      });
+      await editCategory(selectedCategoryId, token, editCategoryName);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -203,10 +182,7 @@ export default function CategoriesScreen() {
     const activeSessionId = sessionRef.current;
 
     try {
-      await apiRequest(`/category/deleteCategory/${selectedCategoryId}`, {
-        method: 'DELETE',
-        token,
-      });
+      await deleteCategory(selectedCategoryId, token);
 
       if (sessionRef.current !== activeSessionId) {
         return;

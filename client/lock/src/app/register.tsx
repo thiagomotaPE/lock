@@ -1,7 +1,7 @@
 import LogoShadow from '@/assets/images/logo-shadow.png';
 import { PrimaryButton } from '@/components/primaryButton';
 import { PrimaryInput } from '@/components/primaryInput';
-import { apiRequest } from '@/services/api';
+import { registerUser } from '@/services/authService';
 import { styles } from '@/styles/register.styles';
 import { useTheme } from '@/theme/useTheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -47,10 +47,7 @@ export default function Register() {
     }
 
     try {
-      await apiRequest('/user/registerNewUser', {
-        method: 'POST',
-        body: JSON.stringify({ username, email, password }),
-      });
+      await registerUser(username, email, password);
 
       Alert.alert('Sucesso', 'Conta criada com sucesso!', [
         { text: 'OK', onPress: () => router.replace('/login') }

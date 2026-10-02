@@ -3,7 +3,7 @@ import { CategoryFilter } from "@/components/categoryFilter";
 import { CredentialCard } from "@/components/credentialCard";
 import { IsEmpty } from "@/components/isEmpty";
 import { SearchBar } from "@/components/searchBar";
-import { apiRequest } from '@/services/api';
+import { getCredentialsForUser } from '@/services/credentialService';
 import { styles } from "@/styles/vault.styles";
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from "@expo/vector-icons";
@@ -53,10 +53,7 @@ export default function Vault() {
         setError(null);
 
         try {
-          const data = await apiRequest<CredentialItem[]>(`/credential/getAllCredentials/${userId}`, {
-            method: 'GET',
-            token,
-          });
+          const data = await getCredentialsForUser(userId, token);
 
           if (sessionRef.current !== activeSessionId) {
             return;

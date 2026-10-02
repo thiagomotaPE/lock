@@ -1,7 +1,7 @@
 import { useAuth } from '@/auth/AuthContext';
 import { CategoryFilterItem } from '@/components/categoryFilterItem';
 import { PrimaryModal } from '@/components/primaryModal';
-import { apiRequest } from '@/services/api';
+import { createCategory, getCategoriesForUser } from '@/services/categoryService';
 import { styles } from '@/styles/categoryFilter.styles';
 import { useTheme } from '@/theme/useTheme';
 import { FontAwesome } from '@expo/vector-icons';
@@ -40,10 +40,7 @@ export function CategoryFilter({
     const activeSessionId = sessionRef.current;
 
     try {
-      const data = await apiRequest<any[]>(`/category/getAllCategories/${userId}`, {
-        method: 'GET',
-        token,
-      });
+      const data = await getCategoriesForUser(userId, token);
 
       if (sessionRef.current !== activeSessionId) {
         return;
@@ -86,14 +83,7 @@ export function CategoryFilter({
           return;
         }
 
-        await apiRequest('/category/registerNewCategory', {
-          method: 'POST',
-          token,
-          body: JSON.stringify({
-            categoryName: categoryName.trim(),
-            userId,
-          }),
-        });
+        await createCategory(userId, token, categoryName);
   
         setCategoryName('');
         setModalVisible(false);
