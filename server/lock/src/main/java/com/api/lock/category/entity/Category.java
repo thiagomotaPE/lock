@@ -9,7 +9,10 @@ import lombok.*;
 
 @Table(
         name = "tb_category",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "category_name"})
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_category_user_name",
+                columnNames = {"user_id", "category_name"}
+        )
 )
 @Entity(name = "category")
 @Getter
@@ -22,7 +25,7 @@ public class Category {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(unique = true)
+    @Column(name = "category_name", nullable = false)
     private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

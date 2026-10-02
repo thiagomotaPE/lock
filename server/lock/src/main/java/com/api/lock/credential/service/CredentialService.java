@@ -99,14 +99,14 @@ public class CredentialService {
             newCredential.setCreatedAt(java.time.LocalDateTime.now());
             newCredential.setUpdatedAt(java.time.LocalDateTime.now());
 
-            if(createCredentialDto.category() != null){
+            if (createCredentialDto.category() != null && !createCredentialDto.category().isBlank()) {
                 Category newCategory = categoryRepository
-                        .findByCategoryName(createCredentialDto.category())
+                        .findByCategoryNameAndUser_IdIgnoreCase(createCredentialDto.category().trim(), createCredentialDto.userId())
                         .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
                 newCredential.setCategory(newCategory);
             } else {
                 Category defaultCategory = categoryRepository
-                        .findByCategoryName("Sem categoria")
+                        .findByCategoryNameAndUser_IdIgnoreCase("Sem categoria", createCredentialDto.userId())
                         .orElseThrow(() -> new ResourceNotFoundException("Categoria padrão não encontrada."));
                 newCredential.setCategory(defaultCategory);
             }
